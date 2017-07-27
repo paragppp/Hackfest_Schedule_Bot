@@ -112,7 +112,9 @@ namespace BotAuth.Dialogs
                         var state = getStateParam(conversationRef);
                         string authenticationUrl = await this.authProvider.GetAuthUrlAsync(this.authOptions, state);
                         //await PromptToLogin(context, msg, authenticationUrl);
-                        await context.PostAsync($"<a href=\"{authenticationUrl}\">Please Sign in</a>");
+                        string signinmessage = $"<a style=\"font - family: Arial; font - size: 18px; background: #f2f2f2; padding: 5px 18px 5px 18px; border: solid #00abec 5px; text -decoration: none;\" href=\"{authenticationUrl}\">Sign In</a>";
+                        await context.PostAsync(signinmessage);
+                        // await context.PostAsync($"<a href=\"{authenticationUrl}\">Please Sign in</a>");
                         context.Wait(this.MessageReceivedAsync);
                     }
                 }

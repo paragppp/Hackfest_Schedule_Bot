@@ -70,6 +70,42 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
+        ///   &lt;style type=\&quot;text/css\&quot;&gt;
+        ///table.company {
+        ///    width: 500px;
+        ///    margin: 0 auto;
+        ///    border-collapse: separate;
+        ///    border-spacing: 0px 15px;
+        ///    font-size: 12px;
+        ///}
+        /// 
+        ///table.company th,
+        ///table.company td {
+        ///    padding: 10px;
+        ///}
+        /// 
+        ///table.company th {
+        ///    background: #295890;
+        ///    vertical-align: middle;
+        ///    text-align: left;
+        ///    width: 100px;
+        ///    overflow: visible;
+        ///    position: relative;
+        ///    color: #fff;
+        ///    font-weight: normal;
+        ///    font-size: 15px;
+        ///}
+        /// 
+        ///table.company th:after {
+        ///    left [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string Style_Table {
+            get {
+                return ResourceManager.GetString("Style_Table", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Please enter only numbers.&lt;br&gt;e.g. 60 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_AlertDuration {
@@ -169,7 +205,11 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
-        ///   The subject is  に類似しているローカライズされた文字列を検索します。
+        ///   &lt;table class=\&quot;company\&quot;&gt;
+        ///    &lt;tbody&gt;
+        ///        &lt;tr&gt;
+        ///            &lt;th class=\&quot;arrow_box\&quot;&gt;Subject&lt;/div&gt;&lt;/th&gt;
+        ///            &lt;td&gt; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_CheckSubject1 {
             get {
@@ -178,7 +218,10 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
-        ///   .  に類似しているローカライズされた文字列を検索します。
+        ///   &lt;/td&gt;
+        ///        &lt;/tr&gt;
+        ///    &lt;/tbody&gt;
+        ///&lt;/table&gt; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_CheckSubject2 {
             get {
