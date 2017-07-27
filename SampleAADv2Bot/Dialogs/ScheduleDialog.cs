@@ -1,4 +1,6 @@
-﻿using BotAuth.AADv2;
+﻿//Currently this is not used
+
+using BotAuth.AADv2;
 using BotAuth.Dialogs;
 using BotAuth.Models;
 using BotAuth;
@@ -15,11 +17,13 @@ using System.Web;
 using SampleAADv2Bot.Extensions;
 using LanguageDetection;
 using System.Globalization;
+using Newtonsoft.Json.Linq;
 
 namespace SampleAADv2Bot.Dialogs
 {
     [Serializable]
-    public class RootDialog : IDialog<string>
+
+    public class ScheduleDialog: IDialog<string>
     {
         //raw inputs
         private string subject = null;
@@ -35,45 +39,21 @@ namespace SampleAADv2Bot.Dialogs
         private string[] normalizedEmails;
         private DateTime normalizedDate;
         private string normalizedSchedule = null;
-
-        //Localization
         private string detectedLanguage = null;
-
+        JObject json = null;
 
         public async Task StartAsync(IDialogContext context)
         {
-            context.Wait(MessageReceivedAsync);
-        }
-
-        public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> item)
-        {
-            var message = await item;
-            LanguageDetector detector = new LanguageDetector();
-
-            detector.AddLanguages("en", "ja");
-            if (Object.Equals("en", detector.Detect(message.Text)))
-                detectedLanguage = "en-US";
-            else
-                detectedLanguage = "ja-JP";
-           
-            //Initialize AuthenticationOptions and forward to AuthDialog for token
-            AuthenticationOptions options = new AuthenticationOptions()
+            if (context.PrivateConversationData.TryGetValue<string>("detectedLanguage", out detectedLanguage))
             {
-                Authority = ConfigurationManager.AppSettings["aad:Authority"],
-                ClientId = ConfigurationManager.AppSettings["aad:ClientId"],
-                ClientSecret = ConfigurationManager.AppSettings["aad:ClientSecret"],
-                Scopes = new string[] { "User.Read" },
-                RedirectUrl = ConfigurationManager.AppSettings["aad:Callback"]
-            };
-            await context.Forward(new AuthDialog(new MSALAuthProvider(), options), async (IDialogContext authContext, IAwaitable<AuthResult> authResult) =>
+                detectedLanguage = context.PrivateConversationData.GetValue<string>("detectedLanguage");
+            }
+            if (context.PrivateConversationData.TryGetValue<JObject>("jsonData", out json))
             {
-                var result = await authResult;
-                // Use token to call into service                
-                var json = await new HttpClient().GetWithAuthAsync(result.AccessToken, "https://graph.microsoft.com/v1.0/me");
-                //await authContext.PostAsync($"I'm a simple bot that doesn't do much, but I know your name is {json.Value<string>("displayName")} and your UPN is {json.Value<string>("userPrincipalName")}.But expect a lot more from me shortly!");
-                Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-                PromptDialog.Text(authContext, this.SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
-            }, message, CancellationToken.None);
+                json = context.PrivateConversationData.GetValue<JObject>("jsonData");
+            }
+            this.detectedLanguage = detectedLanguage;
+            PromptDialog.Text(context, this.SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
         }
 
         public async Task SubjectMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
@@ -187,22 +167,6 @@ namespace SampleAADv2Bot.Dialogs
             }
 
             context.Done<object>(null);
-        }
-
-        private async Task ResumeAfterOptionDialog(IDialogContext context, IAwaitable<object> argument)
-        {
-            try
-            {
-                var message = await argument;
-            }
-            catch (Exception ex)
-            {
-                await context.PostAsync($"Failed with message: {ex.Message}");
-            }
-            finally
-            {
-                context.Wait(this.MessageReceivedAsync);
-            }
-        }
+        }      
     }
 }

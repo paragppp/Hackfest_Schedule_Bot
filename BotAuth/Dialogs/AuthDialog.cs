@@ -18,7 +18,7 @@ namespace BotAuth.Dialogs
         protected AuthenticationOptions authOptions;
         protected string prompt { get; }
 
-        public AuthDialog(IAuthProvider AuthProvider, AuthenticationOptions AuthOptions, string Prompt = "Please click to sign in: ")
+        public AuthDialog(IAuthProvider AuthProvider, AuthenticationOptions AuthOptions, string Prompt = "Link")
         {
             this.prompt = Prompt;
             this.authProvider = AuthProvider;
@@ -53,8 +53,7 @@ namespace BotAuth.Dialogs
                     {
                         if (msg.Text == null)
                         {
-                            await context.PostAsync($"Please paste back the number you received in your authentication screen.");
-
+                            //await context.PostAsync($"Please paste back the number you received in your authentication screen.");
                             context.Wait(this.MessageReceivedAsync);
                         }
                         else
@@ -112,7 +111,8 @@ namespace BotAuth.Dialogs
                         var conversationRef = context.Activity.ToConversationReference();
                         var state = getStateParam(conversationRef);
                         string authenticationUrl = await this.authProvider.GetAuthUrlAsync(this.authOptions, state);
-                        await PromptToLogin(context, msg, authenticationUrl);
+                        //await PromptToLogin(context, msg, authenticationUrl);
+                        await context.PostAsync($"<a href=\"{authenticationUrl}\">Please Sign in</a>");
                         context.Wait(this.MessageReceivedAsync);
                     }
                 }

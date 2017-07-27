@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="String1" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Text_AlertDuration" xml:space="preserve">
+    <value>Please enter only numbers.&lt;br&gt;e.g. 60</value>
+  </data>
+  <data name="Text_AlertEmailAddresses" xml:space="preserve">
+    <value>Please enter only E-mail addresses.&lt;br&gt;e.g. abc@company.com, def@government.gov</value>
+  </data>
+  <data name="Text_AlertNumberOfParticipants" xml:space="preserve">
+    <value>Please enter only numbers.&lt;br&gt;e.g. 3</value>
+  </data>
+  <data name="Text_AlertWhen" xml:space="preserve">
+    <value>Please enter only date.&lt;br&gt;e.g. 2015/06/20</value>
+  </data>
+  <data name="Text_Arranged" xml:space="preserve">
+    <value>The meeting is arranged. Thank you!</value>
+  </data>
+  <data name="Text_Canceled" xml:space="preserve">
+    <value>The arrangement is canceled.</value>
+  </data>
+  <data name="Text_CheckDuration1" xml:space="preserve">
+    <value>The duration of the meeting is </value>
+  </data>
+  <data name="Text_CheckDuration2" xml:space="preserve">
+    <value> min.</value>
+  </data>
+  <data name="Text_CheckEmailAddresses" xml:space="preserve">
+    <value>You will invite </value>
+  </data>
+  <data name="Text_CheckNumberOfParticipants1" xml:space="preserve">
+    <value>The number of participants is </value>
+  </data>
+  <data name="Text_CheckNumberOfParticipants2" xml:space="preserve">
+    <value> .</value>
+  </data>
+  <data name="Text_CheckSubject1" xml:space="preserve">
+    <value>The subject is </value>
+  </data>
+  <data name="Text_CheckSubject2" xml:space="preserve">
+    <value>. </value>
+  </data>
+  <data name="Text_CheckWhen1" xml:space="preserve">
+    <value>You would like to hold the meeting at </value>
+  </data>
+  <data name="Text_CheckWhen2" xml:space="preserve">
+    <value> .</value>
+  </data>
+  <data name="Text_Confirmation1" xml:space="preserve">
+    <value>You would like to hold the meeting with</value>
+  </data>
+  <data name="Text_Confirmation2" xml:space="preserve">
+    <value> at </value>
+  </data>
+  <data name="Text_Confirmation3" xml:space="preserve">
+    <value> .</value>
+  </data>
+  <data name="Text_Confirmation4" xml:space="preserve">
+    <value>Is this correct?</value>
+  </data>
+  <data name="Text_Hello1" xml:space="preserve">
+    <value>Hello </value>
+  </data>
+  <data name="Text_Hello2" xml:space="preserve">
+    <value> san! </value>
+  </data>
+  <data name="Text_PleaseEnterDuration" xml:space="preserve">
+    <value>&lt;b&gt;How long is the duration&lt;/b&gt; of the meeting (min)?</value>
+  </data>
+  <data name="Text_PleaseEnterEmailAddresses" xml:space="preserve">
+    <value>Please list &lt;b&gt;all E-mail addresses&lt;/b&gt; separated by comma.</value>
+  </data>
+  <data name="Text_PleaseEnterNumberOfParticipants" xml:space="preserve">
+    <value>&lt;b&gt;How many participants&lt;/b&gt; you will invite for the meeting?</value>
+  </data>
+  <data name="Text_PleaseEnterSubject" xml:space="preserve">
+    <value>First, please tell me the &lt;b&gt;subject&lt;/b&gt; of the meeting.</value>
+  </data>
+  <data name="Text_PleaseEnterWhen" xml:space="preserve">
+    <value>&lt;b&gt;When&lt;/b&gt; would you like to hold the meeting?</value>
+  </data>
+  <data name="Text_PleaseSelectSchedule" xml:space="preserve">
+    <value>Please select the date from the following options: </value>
+  </data>
+  <data name="Text_PleaseSignIn" xml:space="preserve">
+    <value>First, please sign in by clicking the link below. &lt;br&gt;Then, please paste back the number you received in your authentication screen.</value>
+  </data>
+  <data name="Text_Welcome" xml:space="preserve">
+    <value>Welcome! This is Schedule Bot!</value>
+  </data>
+</root>
