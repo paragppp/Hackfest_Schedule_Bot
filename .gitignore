@@ -253,6 +253,3 @@ paket-files/
 
 # Nuget
 nuget.exe
-
-# Web.config
-Web.config
