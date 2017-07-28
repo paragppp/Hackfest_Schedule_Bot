@@ -37,7 +37,7 @@ namespace SampleAADv2Bot.Dialogs
         private string normalizedSchedule = null;
 
         //Localization
-        private string detectedLanguage = null;
+        private string detectedLanguage = "en-US";
 
 
         public async Task StartAsync(IDialogContext context)
@@ -47,15 +47,7 @@ namespace SampleAADv2Bot.Dialogs
 
         public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> item)
         {
-            var message = await item;
-            LanguageDetector detector = new LanguageDetector();
-
-            detector.AddLanguages("en", "ja");
-            if (Object.Equals("en", detector.Detect(message.Text)))
-                detectedLanguage = "en-US";
-            else
-                detectedLanguage = "ja-JP";
-           
+            var message = await item;           
             //Initialize AuthenticationOptions and forward to AuthDialog for token
             AuthenticationOptions options = new AuthenticationOptions()
             {
@@ -78,8 +70,6 @@ namespace SampleAADv2Bot.Dialogs
 
         public async Task SubjectMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            await context.PostAsync(detectedLanguage);
-            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(detectedLanguage);
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
             this.subject = await argument;
             await context.PostAsync(Properties.Resources.Text_CheckSubject1 + this.subject + Properties.Resources.Text_CheckSubject2);
@@ -126,7 +116,8 @@ namespace SampleAADv2Bot.Dialogs
             this.emails = await argument;
             //remove space
             this.emails = this.emails.Replace(" ", "").Replace("　", "");
-
+            this.emails = this.emails.Replace("&#160;", "").Replace("&#160:^", "");
+            this.emails = System.Text.RegularExpressions.Regex.Replace(this.emails, "\\(.+?\\)", "");
             if (this.emails.IsEmailAddressList())
             {
                 normalizedEmails = this.emails.Split(',');
