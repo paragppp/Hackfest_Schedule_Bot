@@ -60,7 +60,7 @@ namespace SampleAADv2Bot.Dialogs
                 Authority = ConfigurationManager.AppSettings["aad:Authority"],
                 ClientId = ConfigurationManager.AppSettings["aad:ClientId"],
                 ClientSecret = ConfigurationManager.AppSettings["aad:ClientSecret"],
-                Scopes = new string[] { "User.Read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared" },
+                Scopes = new string[] { "User.Read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared"},
                 RedirectUrl = ConfigurationManager.AppSettings["aad:Callback"]
             };
             await context.Forward(new AuthDialog(new MSALAuthProvider(), options), async (IDialogContext authContext, IAwaitable<AuthResult> authResult) =>
@@ -215,18 +215,25 @@ namespace SampleAADv2Bot.Dialogs
             #region TBD Replace with real input
             string startDate = date + "T08:00:00.000Z";
             string endDate = date + "T20: 00:00.00Z";
+            List<Attendee> inputAttendee = new List<Attendee>();
+            foreach (var i in normalizedEmails)
+            {
+                inputAttendee.Add(
+                     new Attendee()
+                     {
+                         EmailAddress = new EmailAddress()
+                         {
+                             Address = i
+                         }
+                     }
+                    );
+            }
+            Duration inputDuration = new Duration(new TimeSpan(0, normalizedDuration, 0));
+
 
             var userFindMeetingTimesRequestBody = new UserFindMeetingTimesRequestBody()
             {
-                Attendees = new List<Attendee>()
-                    {
-                        new Attendee()
-                        {
-                            EmailAddress = new EmailAddress(){
-                                Address ="mstest2@tdctry.onmicrosoft.com",
-                                Name ="test2" }
-                        }
-                    },
+                Attendees = inputAttendee,
                 //LocationConstraint = new LocationConstraint()
                 //{
                 //    IsRequired = false,
@@ -249,17 +256,17 @@ namespace SampleAADv2Bot.Dialogs
                                 Start = new DateTimeTimeZone()
                                 {
                                     DateTime = startDate,
-                                    TimeZone = "Pacific Standard Time"
+                                    TimeZone = "Tokyo Standard Time"
                                 },
                                 End = new DateTimeTimeZone()
                                 {
                                     DateTime = endDate,
-                                    TimeZone = "Pacific Standard Time"
+                                    TimeZone = "Tokyo Standard Time"
                                 }
                             }
                         }
                 },
-                MeetingDuration = new Duration(new TimeSpan(2, 0, 0)),
+                MeetingDuration = inputDuration,
                 MaxCandidates = 15,
                 IsOrganizerOptional = false,
                 ReturnSuggestionReasons = true,
@@ -271,9 +278,9 @@ namespace SampleAADv2Bot.Dialogs
             var stringBuilder = new StringBuilder();
             foreach (var suggestion in meetingTimeSuggestion.MeetingTimeSuggestions)
             {
-                stringBuilder.AppendLine($"start - {suggestion.MeetingTimeSlot.Start.DateTime.ToString()} and end - {suggestion.MeetingTimeSlot.End.DateTime.ToString()}");
+                stringBuilder.AppendLine($"{suggestion.MeetingTimeSlot.Start.DateTime.ToString()}  - {suggestion.MeetingTimeSlot.End.DateTime.ToString()}\n");
             }
-            await context.PostAsync($"There are the options for meeting {stringBuilder.ToString()}");
+            await context.PostAsync($"There are the options for meeting\n{stringBuilder.ToString()}");
         }
 
     //public async Task ScheduleMeeitng(IDialogContext context, IMessageActivity message)
