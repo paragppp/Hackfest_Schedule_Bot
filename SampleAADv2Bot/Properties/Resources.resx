@@ -154,10 +154,10 @@
     <value> .</value>
   </data>
   <data name="Text_CheckSubject1" xml:space="preserve">
-    <value>The subject is </value>
+    <value>&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th&gt;Subject&lt;/th&gt;&lt;td&gt;</value>
   </data>
   <data name="Text_CheckSubject2" xml:space="preserve">
-    <value>. </value>
+    <value>&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Candidate&lt;/th&gt;&lt;td&gt;2017/07/28&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</value>
   </data>
   <data name="Text_CheckWhen1" xml:space="preserve">
     <value>You would like to hold the meeting at </value>
