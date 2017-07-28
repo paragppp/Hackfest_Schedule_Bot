@@ -44,12 +44,13 @@ namespace BotAuth.Dialogs
                     //IMPORTANT: DO NOT REMOVE THE MAGIC NUMBER CHECK THAT WE DO HERE. THIS IS AN ABSOLUTE SECURITY REQUIREMENT
                     //REMOVING THIS WILL REMOVE YOUR BOT AND YOUR USERS TO SECURITY VULNERABILITIES. 
                     //MAKE SURE YOU UNDERSTAND THE ATTACK VECTORS AND WHY THIS IS IN PLACE.
-                    context.UserData.TryGetValue<string>($"{this.authProvider.Name}{ContextConstants.MagicNumberValidated}", out validated);
-                    if (validated == "true")
-                    {
-                        context.Done(authResult);
-                    }
-                    else if (context.UserData.TryGetValue<int>($"{this.authProvider.Name}{ContextConstants.MagicNumberKey}", out magicNumber))
+                    //context.UserData.TryGetValue<string>($"{this.authProvider.Name}{ContextConstants.MagicNumberValidated}", out validated);
+                    //if (validated == "true")
+                    //{
+                    //    context.Done(authResult);
+                    //}
+                    //else 
+                    if (context.UserData.TryGetValue<int>($"{this.authProvider.Name}{ContextConstants.MagicNumberKey}", out magicNumber))
                     {
                         if (msg.Text == null)
                         {
