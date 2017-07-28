@@ -54,7 +54,8 @@ namespace SampleAADv2Bot.Extensions
         public static bool IsDatatime(this string argument)
         {
             if (System.Text.RegularExpressions.Regex.IsMatch(argument,
-                  @"^[0-9]{4}/[0-9]{2}/[0-9]{2}$"))
+                                    //@"^[0-9]{4}/[0-9]{2}/[0-9]{2}$"))
+                                    @"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))
             {
                 return true;
             }

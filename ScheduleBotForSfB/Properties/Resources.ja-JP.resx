@@ -127,7 +127,7 @@
     <value>数値のみを入力してください。&lt;br&gt;例：3</value>
   </data>
   <data name="Text_AlertWhen" xml:space="preserve">
-    <value>日付のみを入力してください。&lt;br&gt;例：2015/06/20</value>
+    <value>日付のみを入力してください。&lt;br&gt;例：2015-06-20</value>
   </data>
   <data name="Text_Arranged" xml:space="preserve">
     <value>ミーティングを設定しました。ありがとうございました！</value>

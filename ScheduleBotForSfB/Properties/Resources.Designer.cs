@@ -97,7 +97,7 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
-        ///   Please enter only date.&lt;br&gt;e.g. 2015/06/20 に類似しているローカライズされた文字列を検索します。
+        ///   Please enter only date.&lt;br&gt;e.g. 2015-06-20 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_AlertWhen {
             get {
@@ -178,7 +178,7 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
-        ///   &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Candidate&lt;/th&gt;&lt;td&gt;2017/07/28&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt; に類似しているローカライズされた文字列を検索します。
+        ///   &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_CheckSubject2 {
             get {

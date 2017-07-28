@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26621.2
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotAuth", "BotAuth\BotAuth.csproj", "{54162CB7-BBEC-4C8C-B7A9-70144556E3E5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotAuth.AADv2", "BotAuth.AADv2\BotAuth.AADv2.csproj", "{32710259-D971-41AE-AD7B-C38985218D54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleAADv2Bot", "SampleAADv2Bot\SampleAADv2Bot.csproj", "{76E6151D-4099-48F6-8149-7664E75BA345}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduleBotForSfB", "ScheduleBotForSfB\ScheduleBotForSfB.csproj", "{76E6151D-4099-48F6-8149-7664E75BA345}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

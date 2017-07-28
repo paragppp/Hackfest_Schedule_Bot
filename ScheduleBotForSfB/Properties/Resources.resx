@@ -130,7 +130,7 @@
     <value>Please enter only numbers.&lt;br&gt;e.g. 3</value>
   </data>
   <data name="Text_AlertWhen" xml:space="preserve">
-    <value>Please enter only date.&lt;br&gt;e.g. 2015/06/20</value>
+    <value>Please enter only date.&lt;br&gt;e.g. 2015-06-20</value>
   </data>
   <data name="Text_Arranged" xml:space="preserve">
     <value>The meeting is arranged. Thank you!</value>
@@ -157,7 +157,7 @@
     <value>&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th&gt;Subject&lt;/th&gt;&lt;td&gt;</value>
   </data>
   <data name="Text_CheckSubject2" xml:space="preserve">
-    <value>&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Candidate&lt;/th&gt;&lt;td&gt;2017/07/28&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</value>
+    <value>&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</value>
   </data>
   <data name="Text_CheckWhen1" xml:space="preserve">
     <value>You would like to hold the meeting at </value>
