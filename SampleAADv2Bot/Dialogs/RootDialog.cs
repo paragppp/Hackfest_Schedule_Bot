@@ -72,7 +72,7 @@ namespace SampleAADv2Bot.Dialogs
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
             this.subject = await argument;
-            await context.PostAsync(Properties.Resources.Text_CheckSubject1 + this.subject + Properties.Resources.Text_CheckSubject2);
+            await context.PostAsync(this.GetScheduleTicket());
             PromptDialog.Text(context, this.DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
         }
 
@@ -83,7 +83,8 @@ namespace SampleAADv2Bot.Dialogs
             if (this.duration.IsNaturalNumber())
             {
                 normalizedDuration = Int32.Parse(this.duration);
-                await context.PostAsync(Properties.Resources.Text_CheckDuration1 + this.normalizedDuration + Properties.Resources.Text_CheckDuration2);
+                // await context.PostAsync(Properties.Resources.Text_CheckDuration1 + this.normalizedDuration + Properties.Resources.Text_CheckDuration2);
+                await context.PostAsync(this.GetScheduleTicket());
                 PromptDialog.Text(context, this.NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
             }
             else
@@ -100,7 +101,8 @@ namespace SampleAADv2Bot.Dialogs
             if (this.number.IsNaturalNumber())
             {
                 normalizedNumber = Int32.Parse(this.number);
-                await context.PostAsync(Properties.Resources.Text_CheckNumberOfParticipants1 + this.normalizedNumber + Properties.Resources.Text_CheckNumberOfParticipants2);
+                // await context.PostAsync(Properties.Resources.Text_CheckNumberOfParticipants1 + this.normalizedNumber + Properties.Resources.Text_CheckNumberOfParticipants2);
+                await context.PostAsync(this.GetScheduleTicket());
                 PromptDialog.Text(context, this.EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
             }
             else
@@ -140,7 +142,8 @@ namespace SampleAADv2Bot.Dialogs
 
             if (this.date.IsDatatime())
             {
-                await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this.date + Properties.Resources.Text_CheckWhen2);
+                // await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this.date + Properties.Resources.Text_CheckWhen2);
+                await context.PostAsync(this.GetScheduleTicket());
                 var dateCandidates = new string[] { "7/10 12:00-13:00 RoomA", "7/10 16:00-17:00 RoomB", "7/11 12:00-13:00 RoomC" };
                 PromptDialog.Choice(context, this.ScheduleMessageReceivedAsync, dateCandidates, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
             }
@@ -159,7 +162,8 @@ namespace SampleAADv2Bot.Dialogs
             await context.PostAsync(Properties.Resources.Text_Confirmation1);
             foreach (var i in normalizedEmails)
                 await context.PostAsync(i);
-            await context.PostAsync(Properties.Resources.Text_Confirmation2 + this.schedule + Properties.Resources.Text_Confirmation3);
+            await context.PostAsync(this.GetScheduleTicket());
+            // await context.PostAsync(Properties.Resources.Text_Confirmation2 + this.schedule + Properties.Resources.Text_Confirmation3);
             PromptDialog.Confirm(context, this.ConfirmedMessageReceivedAsync, Properties.Resources.Text_Confirmation4, null, 3, PromptStyle.AutoText);
         }
 
@@ -194,6 +198,31 @@ namespace SampleAADv2Bot.Dialogs
             {
                 context.Wait(this.MessageReceivedAsync);
             }
+        }
+
+        private string GetScheduleTicket()
+        {
+            var htmlTicket = "<table><tbody><tr><th>Subject</th><td>";
+            htmlTicket += this.subject ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Duration</th><td>";
+            htmlTicket += this.duration ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Numberofpeople</th><td>";
+            htmlTicket += this.number ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Attendances</th><td>";
+            htmlTicket += this.emails ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
+            htmlTicket += this.schedule ?? "";
+
+            // htmlTicket += "</td></tr><tr><th>Candidate</th><td>";
+            // htmlTicket += this.candidate ?? "";
+
+            htmlTicket += "</td></tr></tbody></table>";
+
+            return htmlTicket;
         }
     }
 }
