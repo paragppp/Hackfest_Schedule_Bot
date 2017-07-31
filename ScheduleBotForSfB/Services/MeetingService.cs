@@ -10,15 +10,23 @@ using Newtonsoft.Json;
 namespace SampleAADv2Bot.Services
 {
     [Serializable]
-    public class MeetingService
+    public class MeetingService : IMeetingService
     {
         private readonly string FindsMeetingTimeEndpoint = "https://graph.microsoft.com/v1.0/me/findMeetingTimes";
         private readonly string ScheduleMeetingEndpoint = "https://graph.microsoft.com/v1.0/me/events";
+        private readonly IRoomService roomService;
+
+        public MeetingService(IRoomService roomService)
+        {
+            this.roomService = roomService;
+        }
 
         public async Task<MeetingTimeSuggestionsResult> GetMeetingsTimeSuggestions(string accessToken, UserFindMeetingTimesRequestBody userFindMeetingTimesRequestBody)
         {
             try
             {
+                var rooms = roomService.GetRooms();
+                roomService.AddRooms(userFindMeetingTimesRequestBody, rooms);
                 var httpResponseMessage = await ApplyOperation(FindsMeetingTimeEndpoint, accessToken, userFindMeetingTimesRequestBody, string.Empty);
                 var meetingTimeSuggestionsResult = JsonConvert.DeserializeObject<MeetingTimeSuggestionsResult>(await httpResponseMessage.Content.ReadAsStringAsync());
                 return meetingTimeSuggestionsResult;
@@ -46,16 +54,6 @@ namespace SampleAADv2Bot.Services
                 var messgae = ex.Message;
                 throw ex;
             }
-        }
-
-        public static async Task GetRooms()
-        {
-
-        }
-
-        public static async Task FindPeople()
-        {
-
         }
 
         private async Task<HttpResponseMessage> ApplyOperation(string endpoint, string accessToken, object payload, string preferTimeZone)
