@@ -44,7 +44,9 @@ namespace SampleAADv2Bot.Dialogs
 
         //Scheduling
         AuthResult result = null;
-        MeetingService meetingService = new MeetingService();
+
+        // TBD - Replace with dependency injection 
+        MeetingService meetingService = new MeetingService(new RoomService());
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -156,9 +158,11 @@ namespace SampleAADv2Bot.Dialogs
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
             this.date = await argument;
+            DateTime dateTime;
+            DateTime.TryParse(date, out dateTime);
             //remove space
             //this.date = this.emails.Replace(" ", "").Replace("　", "");
-            if (this.date.IsDatatime())
+            if (dateTime != DateTime.MinValue && dateTime != DateTime.MaxValue)
             {
                 await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this.date + Properties.Resources.Text_CheckWhen2);
                 await GetMeetingSuggestions(context, argument);
@@ -213,8 +217,8 @@ namespace SampleAADv2Bot.Dialogs
         private async Task GetMeetingSuggestions(IDialogContext context, IAwaitable<string> argument)
         {
             #region TBD Replace with real input
-            string startDate = date + "T08:00:00.000Z";
-            string endDate = date + "T20: 00:00.00Z";
+            string startDate = date + "T00:00:00.000Z";
+            string endDate = date + "T10: 00:00.00Z";
             List<Attendee> inputAttendee = new List<Attendee>();
             foreach (var i in normalizedEmails)
             {
@@ -256,12 +260,12 @@ namespace SampleAADv2Bot.Dialogs
                                 Start = new DateTimeTimeZone()
                                 {
                                     DateTime = startDate,
-                                    TimeZone = "Tokyo Standard Time"
+                                    TimeZone = "UTC"
                                 },
                                 End = new DateTimeTimeZone()
                                 {
                                     DateTime = endDate,
-                                    TimeZone = "Tokyo Standard Time"
+                                    TimeZone = "UTC"
                                 }
                             }
                         }
@@ -278,7 +282,11 @@ namespace SampleAADv2Bot.Dialogs
             var stringBuilder = new StringBuilder();
             foreach (var suggestion in meetingTimeSuggestion.MeetingTimeSuggestions)
             {
-                stringBuilder.AppendLine($"{suggestion.MeetingTimeSlot.Start.DateTime.ToString()}  - {suggestion.MeetingTimeSlot.End.DateTime.ToString()}\n");
+                DateTime startTime, endTime;
+                DateTime.TryParse(suggestion.MeetingTimeSlot.Start.DateTime, out startTime);
+                DateTime.TryParse(suggestion.MeetingTimeSlot.End.DateTime, out endTime);
+ 
+                stringBuilder.AppendLine($"{startTime.AddHours(9).ToString()}  - {endTime.AddHours(9).ToString()}\n");
             }
             await context.PostAsync($"There are the options for meeting\n{stringBuilder.ToString()}");
         }
