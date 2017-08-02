@@ -38,6 +38,7 @@ namespace SampleAADv2Bot.Dialogs
         private string[] normalizedEmails;
         private DateTime normalizedDate;
         private string normalizedSchedule = null;
+        private Dictionary<string, string> roomsDictionary = null;
 
         //Localization
         private string detectedLanguage = "en-US";
@@ -45,8 +46,9 @@ namespace SampleAADv2Bot.Dialogs
         //Scheduling
         AuthResult result = null;
 
+        static RoomService roomService = new RoomService();
         // TBD - Replace with dependency injection 
-        MeetingService meetingService = new MeetingService(new RoomService());
+        static MeetingService meetingService = new MeetingService(roomService);
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -55,6 +57,12 @@ namespace SampleAADv2Bot.Dialogs
 
         public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> item)
         {
+            roomsDictionary = new Dictionary<string, string>();
+            var rooms = roomService.GetRooms();
+            foreach(var room in rooms)
+            {
+                roomsDictionary.Add(room.Address, room.Name);
+            }
             var message = await item;
             //Initialize AuthenticationOptions and forward to AuthDialog for token
             AuthenticationOptions options = new AuthenticationOptions()
@@ -218,7 +226,7 @@ namespace SampleAADv2Bot.Dialogs
         {
             #region TBD Replace with real input
             string startDate = date + "T00:00:00.000Z";
-            string endDate = date + "T10: 00:00.00Z";
+            string endDate = date + "T10:00:00.00Z";
             List<Attendee> inputAttendee = new List<Attendee>();
             foreach (var i in normalizedEmails)
             {
@@ -286,8 +294,12 @@ namespace SampleAADv2Bot.Dialogs
                 DateTime.TryParse(suggestion.MeetingTimeSlot.Start.DateTime, out startTime);
                 DateTime.TryParse(suggestion.MeetingTimeSlot.End.DateTime, out endTime);
  
-                stringBuilder.AppendLine($"{startTime.AddHours(9).ToString()}  - {endTime.AddHours(9).ToString()}\n");
+                stringBuilder.AppendLine($"{startTime.AddHours(9).ToString("yyyy-MM-dd")} -  {startTime.AddHours(9).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()} - Rooms - {Util.DataConverter.GetMeetingSuggestionRooms(suggestion, roomsDictionary)}\n");
             }
+
+
+            //var dateCandidates = new string[] { "7/10 12:00-13:00 RoomA", "7/10 16:00-17:00 RoomB", "7/11 12:00-13:00 RoomC" };
+            //PromptDialog.Choice(context, this.ScheduleMessageReceivedAsync, dateCandidates, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
             await context.PostAsync($"There are the options for meeting\n{stringBuilder.ToString()}");
         }
 
