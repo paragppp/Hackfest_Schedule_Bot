@@ -286,6 +286,15 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
+        ///   Please enter the &lt;b&gt;number&lt;/b&gt; of the schedule option you wish. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string Text_PleaseEnterSchedule {
+            get {
+                return ResourceManager.GetString("Text_PleaseEnterSchedule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   First, please tell me the &lt;b&gt;subject&lt;/b&gt; of the meeting. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_PleaseEnterSubject {

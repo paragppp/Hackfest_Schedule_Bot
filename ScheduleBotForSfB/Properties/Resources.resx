@@ -192,6 +192,9 @@
   <data name="Text_PleaseEnterNumberOfParticipants" xml:space="preserve">
     <value>&lt;b&gt;How many participants&lt;/b&gt; you will invite for the meeting?</value>
   </data>
+  <data name="Text_PleaseEnterSchedule" xml:space="preserve">
+    <value>Please enter the &lt;b&gt;number&lt;/b&gt; of the schedule option you wish.</value>
+  </data>
   <data name="Text_PleaseEnterSubject" xml:space="preserve">
     <value>First, please tell me the &lt;b&gt;subject&lt;/b&gt; of the meeting.</value>
   </data>

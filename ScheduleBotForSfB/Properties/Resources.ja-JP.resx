@@ -189,6 +189,9 @@
   <data name="Text_PleaseEnterNumberOfParticipants" xml:space="preserve">
     <value>ミーティングの参加依頼を&lt;b&gt;何人&lt;/b&gt;に出しますか？</value>
   </data>
+  <data name="Text_PleaseEnterSchedule" xml:space="preserve">
+    <value>スケジュール候補の番号を選んでください。</value>
+  </data>
   <data name="Text_PleaseEnterSubject" xml:space="preserve">
     <value>まず、&lt;b&gt;ミーティングのタイトル&lt;/b&gt;を入力してください。</value>
   </data>

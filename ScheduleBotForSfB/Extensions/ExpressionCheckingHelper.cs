@@ -20,6 +20,19 @@ namespace SampleAADv2Bot.Extensions
             }
         }
 
+        public static bool IsNumber(this string argument)
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(argument,
+                @"^[0-9]*$"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public static bool IsEmailAddress(this string argument)
         {
             if (System.Text.RegularExpressions.Regex.IsMatch(argument,

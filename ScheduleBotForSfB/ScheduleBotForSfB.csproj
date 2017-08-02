@@ -165,6 +165,7 @@
     <Compile Include="Services\MeetingService.cs" />
     <Compile Include="Services\Room.cs" />
     <Compile Include="Services\RoomService.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Util\DataConverter.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +173,8 @@
     <None Include="Properties\PublishProfiles\bot-auth-sample - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\itfairbotendpoint - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\itfairbotendpoint - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\itfairbotendpointdev - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\itfairbotendpointdev - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
