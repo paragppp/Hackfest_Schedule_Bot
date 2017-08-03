@@ -162,6 +162,7 @@
     </Compile>
     <Compile Include="Services\IMeetingService.cs" />
     <Compile Include="Services\IRoomService.cs" />
+    <Compile Include="Services\MeetingSchedule.cs" />
     <Compile Include="Services\MeetingService.cs" />
     <Compile Include="Services\Room.cs" />
     <Compile Include="Services\RoomService.cs" />
