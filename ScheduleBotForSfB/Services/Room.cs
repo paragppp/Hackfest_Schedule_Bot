@@ -8,6 +8,7 @@ namespace SampleAADv2Bot.Services
     /// <summary>
     /// Room 
     /// </summary>
+    [Serializable]
     public class Room
     {
         /// <summary>
@@ -18,5 +19,10 @@ namespace SampleAADv2Bot.Services
         /// Room email
         /// </summary>
         public string Address { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

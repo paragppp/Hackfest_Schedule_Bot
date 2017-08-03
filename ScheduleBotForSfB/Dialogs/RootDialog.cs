@@ -6,16 +6,11 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using SampleAADv2Bot.Extensions;
-using LanguageDetection;
 using System.Globalization;
-using System.Text;
 using SampleAADv2Bot.Services;
 using Microsoft.Graph;
 
@@ -31,6 +26,9 @@ namespace SampleAADv2Bot.Dialogs
         private string emails = null;
         private string date = null;
         private string schedule = null;
+        private string roomName = null;
+        private string roomEmail = null;
+
 
         //normalized inputs
         private int normalizedNumber = 0;
@@ -39,7 +37,8 @@ namespace SampleAADv2Bot.Dialogs
         private DateTime normalizedDate;
         private string normalizedSchedule = null;
         private Dictionary<string, string> roomsDictionary = null;
-
+        private DateTime startTime;
+        private DateTime endTime;
         //Localization
         private string detectedLanguage = "en-US";
 
@@ -65,15 +64,8 @@ namespace SampleAADv2Bot.Dialogs
             }
             var message = await item;
             //Initialize AuthenticationOptions and forward to AuthDialog for token
-            AuthenticationOptions options = new AuthenticationOptions()
-            {
-                Authority = ConfigurationManager.AppSettings["aad:Authority"],
-                ClientId = ConfigurationManager.AppSettings["aad:ClientId"],
-                ClientSecret = ConfigurationManager.AppSettings["aad:ClientSecret"],
-                Scopes = new string[] { "User.Read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared"},
-                RedirectUrl = ConfigurationManager.AppSettings["aad:Callback"]
-            };
-            await context.Forward(new AuthDialog(new MSALAuthProvider(), options), async (IDialogContext authContext, IAwaitable<AuthResult> authResult) =>
+           
+            await context.Forward(new AuthDialog(new MSALAuthProvider(), Util.DataConverter.GetAuthenticationOptions()), async (IDialogContext authContext, IAwaitable<AuthResult> authResult) =>
             {
                 this.result = await authResult;
                 // Use token to call into service                
@@ -168,14 +160,10 @@ namespace SampleAADv2Bot.Dialogs
             this.date = await argument;
             DateTime dateTime;
             DateTime.TryParse(date, out dateTime);
-            //remove space
-            //this.date = this.emails.Replace(" ", "").Replace("　", "");
             if (dateTime != DateTime.MinValue && dateTime != DateTime.MaxValue)
             {
                 await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this.date + Properties.Resources.Text_CheckWhen2);
                 await GetMeetingSuggestions(context, argument);
-                //var dateCandidates = new string[] { "7/10 12:00-13:00 RoomA", "7/10 16:00-17:00 RoomB", "7/11 12:00-13:00 RoomC" };
-                //PromptDialog.Choice(context, this.ScheduleMessageReceivedAsync, dateCandidates, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
             }
             else
             {
@@ -183,15 +171,14 @@ namespace SampleAADv2Bot.Dialogs
             }
         }
 
-        public async Task ScheduleMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
+        public async Task ScheduleMessageReceivedAsync(IDialogContext context, IAwaitable<MeetingSchedule> argument)
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.schedule = await argument;
-            await context.PostAsync(Properties.Resources.Text_Confirmation1);
-            foreach (var i in normalizedEmails)
-                await context.PostAsync(i);
-            await context.PostAsync(Properties.Resources.Text_Confirmation2 + this.schedule + Properties.Resources.Text_Confirmation3);
-            PromptDialog.Confirm(context, this.ConfirmedMessageReceivedAsync, Properties.Resources.Text_Confirmation4, null, 3, PromptStyle.AutoText);
+            var data = await argument;
+            startTime = data.StartTime;
+            endTime = data.EndTime;
+            schedule = data.Time;
+            PromptDialog.Choice(context, ScheduleMeetingAsync, data.Rooms, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
         }
 
         public async Task ConfirmedMessageReceivedAsync(IDialogContext context, IAwaitable<bool> argument)
@@ -211,20 +198,9 @@ namespace SampleAADv2Bot.Dialogs
             context.Done<object>(null);
         }
 
-        public virtual async Task MessageReceivedAsync2(IDialogContext context, IAwaitable<IMessageActivity> item)
-        {
-            var message = await item;
-            // Get meeting suggestions
-            //await GetMeetingSuggestions(context, message);
-            // Schedule a meeting
-            // await ScheduleMeeitng(context, message);
-
-        }
-
         // TBD - inject function logic for the interaction with Graph API 
         private async Task GetMeetingSuggestions(IDialogContext context, IAwaitable<string> argument)
         {
-            #region TBD Replace with real input
             string startDate = date + "T00:00:00.000Z";
             string endDate = date + "T10:00:00.00Z";
             List<Attendee> inputAttendee = new List<Attendee>();
@@ -246,19 +222,6 @@ namespace SampleAADv2Bot.Dialogs
             var userFindMeetingTimesRequestBody = new UserFindMeetingTimesRequestBody()
             {
                 Attendees = inputAttendee,
-                //LocationConstraint = new LocationConstraint()
-                //{
-                //    IsRequired = false,
-                //    SuggestLocation = true,
-                //    Locations = new List<LocationConstraintItem>()
-                //{
-                //    new LocationConstraintItem()
-                //    {
-                //        DisplayName = "Conf Room 32/1368",
-                //        LocationEmailAddress = "conf32room1368@imgeek.onmicrosoft.com"
-                //    }
-                //}
-                //},
                 TimeConstraint = new TimeConstraint()
                 {
                     Timeslots = new List<TimeSlot>()
@@ -285,97 +248,106 @@ namespace SampleAADv2Bot.Dialogs
                 MinimumAttendeePercentage = 100
 
             };
-            #endregion
+
             var meetingTimeSuggestion = await meetingService.GetMeetingsTimeSuggestions(result.AccessToken, userFindMeetingTimesRequestBody);
-            var stringBuilder = new StringBuilder();
+            var meetingScheduleSuggestions = new List<MeetingSchedule>();
             foreach (var suggestion in meetingTimeSuggestion.MeetingTimeSuggestions)
             {
                 DateTime startTime, endTime;
                 DateTime.TryParse(suggestion.MeetingTimeSlot.Start.DateTime, out startTime);
                 DateTime.TryParse(suggestion.MeetingTimeSlot.End.DateTime, out endTime);
- 
-                stringBuilder.AppendLine($"{startTime.AddHours(9).ToString("yyyy-MM-dd")} -  {startTime.AddHours(9).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()} - Rooms - {Util.DataConverter.GetMeetingSuggestionRooms(suggestion, roomsDictionary)}\n");
+
+                meetingScheduleSuggestions.Add(new MeetingSchedule()
+                                    {
+                                        StartTime = startTime,
+                                        EndTime = endTime,
+                                        Time = $"{startTime.AddHours(9).ToString("yyyy-MM-dd")} -  {startTime.AddHours(9).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()}",
+                                        Rooms = Util.DataConverter.GetMeetingSuggestionRooms(suggestion, roomsDictionary)
+                                    });
             }
 
-
-            //var dateCandidates = new string[] { "7/10 12:00-13:00 RoomA", "7/10 16:00-17:00 RoomB", "7/11 12:00-13:00 RoomC" };
-            //PromptDialog.Choice(context, this.ScheduleMessageReceivedAsync, dateCandidates, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
-            await context.PostAsync($"There are the options for meeting\n{stringBuilder.ToString()}");
+            PromptDialog.Choice(context, ScheduleMessageReceivedAsync, meetingScheduleSuggestions, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
         }
 
-    //public async Task ScheduleMeeitng(IDialogContext context, IMessageActivity message)
-    //{
-    //    try
-    //    {
-
-    //        await context.Forward(new AuthDialog(new MSALAuthProvider(), GetAuthenticationOptions()), async (IDialogContext authContext, IAwaitable<AuthResult> authResult) =>
-    //        {
-    //            #region TBD Replace with real input 
-    //            var meeting = new Event()
-    //            {
-    //                Subject = "My Event",
-    //                Body = new ItemBody()
-    //                {
-    //                    ContentType = BodyType.Html,
-    //                    Content = "Does late morning work for you?"
-    //                },
-    //                Start = new DateTimeTimeZone()
-    //                {
-    //                    DateTime = "2017-07-29T07:30:00.000Z",
-    //                    TimeZone = "UTC"
-    //                },
-    //                End = new DateTimeTimeZone()
-    //                {
-    //                    DateTime = "2017-07-29T08:30:00.000Z",
-    //                    TimeZone = "UTC"
-    //                },
-    //                Location = new Location()
-    //                {
-    //                    DisplayName = "Harry's Bar"
-    //                },
-    //                Attendees = new List<Attendee>()
-    //                {
-    //                    new Attendee()
-    //                    {
-    //                        EmailAddress =  new EmailAddress()
-    //                        {
-    //                            Address = "test1@Microsoft312.onmicrosoft.com",
-    //                           Name = "Test1 User"
-    //                        },
-    //                        Type = AttendeeType.Required
-    //                    },
-    //                }
-    //            };
-    //            #endregion
-    //            var result = await authResult;
-    //            var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
-    //            await authContext.PostAsync($"Meeting with iCalUId - {scheduledMeeting.ICalUId} is scheduled.");
-    //        }, message, CancellationToken.None);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        var msg = ex.Message;
-    //        throw ex;
-    //    }
-    //}
-
-
-
-    private async Task ResumeAfterOptionDialog(IDialogContext context, IAwaitable<object> argument)
-    {
-        try
+        public async Task ScheduleMeetingAsync(IDialogContext context, IAwaitable<Services.Room> message)
         {
-            var message = await argument;
+            try
+            {    
+                    var selectedRoom = await message;
+                    var attendees = new List<Attendee>();
+                    foreach(var email in normalizedEmails)
+                    {
+                        attendees.Add(new Attendee
+                        {
+                             EmailAddress = new EmailAddress()
+                             {
+                                 Address = email
+                             }
+                        });
+                    }
+                    attendees.Add(new Attendee()
+                    {
+                        EmailAddress = new EmailAddress()
+                        {
+                            Name = selectedRoom.Name,
+                            Address = selectedRoom.Address
+                        }
+                    });
+                    
+                #region TBD Replace with real input 
+                var meeting = new Event()
+                    {
+                        Subject = subject,
+                        //Body = new ItemBody()
+                        //{
+                        //    ContentType = BodyType.Html,
+                        //    Content = "Does late morning work for you?"
+                        //},
+                        Start = new DateTimeTimeZone()
+                        {
+                            DateTime = startTime.ToString(), // "2017-07-29T07:30:00.000Z",
+                            TimeZone = "UTC"
+                        },
+                        End = new DateTimeTimeZone()
+                        {
+                            DateTime = endTime.ToString(),
+                            TimeZone = "UTC"
+                        },
+                        Location = new Location()
+                        {
+                            DisplayName = roomName
+                        },
+                        Attendees = attendees
+                    };
+                #endregion
+
+                    var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
+                    await context.PostAsync($"Meeting with iCalUId - {scheduledMeeting.ICalUId} is scheduled.");
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                throw ex;
+            }
         }
-        catch (Exception ex)
+
+
+
+        private async Task ResumeAfterOptionDialog(IDialogContext context, IAwaitable<object> argument)
         {
-            await context.PostAsync($"Failed with message: {ex.Message}");
+            try
+            {
+                var message = await argument;
+            }
+            catch (Exception ex)
+            {
+                await context.PostAsync($"Failed with message: {ex.Message}");
+            }
+            finally
+            {
+                context.Wait(this.MessageReceivedAsync);
+            }
         }
-        finally
-        {
-            context.Wait(this.MessageReceivedAsync);
-        }
-    }
 
         private string GetScheduleTicket()
         {
