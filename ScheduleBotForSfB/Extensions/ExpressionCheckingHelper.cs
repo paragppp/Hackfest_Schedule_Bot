@@ -7,6 +7,18 @@ namespace SampleAADv2Bot.Extensions
 {
     public static class ExpressionCheckingHelper
     {
+
+        /// <summary>
+        /// Lync 2013 client changes space into "&#160;". In this function, set "&#160;" to ' '
+        /// </summary>
+        /// <returns></returns>
+        public static string ToSpaceAltered(this string argument)
+        {
+            string output = "";
+            output = argument.Replace("&#160;", " ");
+            return output;
+        }
+
         public static bool IsNaturalNumber(this string argument)
         {
             if (System.Text.RegularExpressions.Regex.IsMatch(argument,

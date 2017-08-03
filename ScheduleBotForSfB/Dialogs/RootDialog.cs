@@ -103,6 +103,7 @@ namespace SampleAADv2Bot.Dialogs
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
             var message = await argument;
+            message = message.ToSpaceAltered();
             context.UserData.SetValue<string>(Settings.meeintingSubject_string, message);
             await context.PostAsync(this.GetScheduleTicket(context));
             PromptDialog.Text(context, this.DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
@@ -219,8 +220,8 @@ namespace SampleAADv2Bot.Dialogs
         {
             string date = null;
             context.UserData.TryGetValue<string>(Settings.meetingDate_string, out date);
-            string startDate = date + "T00:00:00.0000000";
-            string endDate = date + "T12:00:00.0000000";
+            string startDate = date + "T00:00";
+            string endDate = date + "T10:00";
 
             string[] emails;
             context.UserData.TryGetValue<string[]>(Settings.InvitationsEmails_stringArray, out emails);
@@ -284,12 +285,12 @@ namespace SampleAADv2Bot.Dialogs
                                 Start = new DateTimeTimeZone()
                                 {
                                     DateTime = startDate,
-                                    TimeZone = "Tokyo Standard Time"
+                                    TimeZone = "GMT Standard Time"
                                 },
                                 End = new DateTimeTimeZone()
                                 {
                                     DateTime = endDate,
-                                    TimeZone = "Tokyo Standard Time"
+                                    TimeZone = "GMT Standard Time"
                                 }
                             }
                         }
@@ -421,7 +422,7 @@ namespace SampleAADv2Bot.Dialogs
                     },
                     Location = new Location()
                     {
-                        DisplayName = "RoomA"
+                        DisplayName = "RoomTest"
                     },
                     Attendees = inputAttendee
                 };
@@ -516,29 +517,28 @@ namespace SampleAADv2Bot.Dialogs
                     displayEmail = "";
                 }
             }
-                
 
 
-                if (displaySchedule.Equals(""))
+            if (displaySchedule.Equals(""))
+            {
+                MeetingTimeSuggestion suggestion = null;
+                if (context.UserData.TryGetValue<MeetingTimeSuggestion>(Settings.meetingSelectedSchedule_meetingTimeSuggestion, out suggestion))
                 {
-                    MeetingTimeSuggestion suggestion = null;
-                    if (context.UserData.TryGetValue<MeetingTimeSuggestion>(Settings.meetingSelectedSchedule_meetingTimeSuggestion, out suggestion))
-                    {
-                        var stringBuilder = new StringBuilder();
-                        DateTime startTime, endTime;
-                        DateTime.TryParse(suggestion.MeetingTimeSlot.Start.DateTime, out startTime);
-                        DateTime.TryParse(suggestion.MeetingTimeSlot.End.DateTime, out endTime);
+                    var stringBuilder = new StringBuilder();
+                    DateTime startTime, endTime;
+                    DateTime.TryParse(suggestion.MeetingTimeSlot.Start.DateTime, out startTime);
+                    DateTime.TryParse(suggestion.MeetingTimeSlot.End.DateTime, out endTime);
 
-                        stringBuilder.AppendLine($"{startTime.AddHours(9).Year.ToString("D4")}/{startTime.AddHours(9).Month.ToString("D2")}/{startTime.AddHours(9).Day.ToString("D2")} " +
-                                $"{startTime.AddHours(9).Hour.ToString("D2")}:{startTime.AddHours(9).Minute.ToString("D2")}" +
-                                $"  - {endTime.AddHours(9).Hour.ToString("D2")}:{endTime.AddHours(9).Minute.ToString("D2")}\n");
-                        displaySchedule = stringBuilder.ToString();
-                    }
-                    else
-                    {
-                        displaySchedule = "";
-                    }
+                    stringBuilder.AppendLine($"{startTime.AddHours(9).Year.ToString("D4")}/{startTime.AddHours(9).Month.ToString("D2")}/{startTime.AddHours(9).Day.ToString("D2")} " +
+                            $"{startTime.AddHours(9).Hour.ToString("D2")}:{startTime.AddHours(9).Minute.ToString("D2")}" +
+                            $"  - {endTime.AddHours(9).Hour.ToString("D2")}:{endTime.AddHours(9).Minute.ToString("D2")}\n");
+                    displaySchedule = stringBuilder.ToString();
                 }
+                else
+                {
+                    displaySchedule = "";
+                }
+            }
 
 
             var htmlTicket = "<table><tbody><tr><th>Subject</th><td>";
@@ -550,10 +550,10 @@ namespace SampleAADv2Bot.Dialogs
             htmlTicket += "</td></tr><tr><th>Number of Invitation</th><td>";
             htmlTicket += displayNumber ?? "";
 
-            htmlTicket += "</td></tr><tr><th>Attendances</th><td>";
+            htmlTicket += "</td></tr><tr><th>Attendees</th><td>";
             htmlTicket += displayEmail ?? "";            
 
-            htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
+            htmlTicket += "</td></tr><tr><th>Schedule</th><td>";
             htmlTicket += displaySchedule ?? "";
 
             // htmlTicket += "</td></tr><tr><th>Candidate</th><td>";
