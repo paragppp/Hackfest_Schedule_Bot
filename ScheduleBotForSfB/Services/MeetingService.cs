@@ -15,16 +15,18 @@ namespace SampleAADv2Bot.Services
         private readonly string ScheduleMeetingEndpoint = "https://graph.microsoft.com/v1.0/me/events";
         private readonly IRoomService roomService;
         private readonly IHttpService httpService;
+        private readonly ILoggingService loggingService;
 
         /// <summary>
         /// Meeting Service Constructor
         /// </summary>
         /// <param name="httpService">HTTP Service instance</param>
         /// <param name="roomService">Room Service instance</param>
-        public MeetingService(IHttpService httpService, IRoomService roomService)
+        public MeetingService(IHttpService httpService, IRoomService roomService, ILoggingService loggingService)
         {
             this.roomService = roomService;
             this.httpService = httpService;
+            this.loggingService = loggingService;
         }
 
         /// <summary>
@@ -45,8 +47,7 @@ namespace SampleAADv2Bot.Services
             }
             catch (Exception ex)
             {
-                // TBD - log exception
-                var messgae = ex.Message;
+                loggingService.Error(ex);
                 throw ex;
             }
         }
@@ -67,8 +68,7 @@ namespace SampleAADv2Bot.Services
             }
             catch (Exception ex)
             {
-                // TBD - log exception
-                var messgae = ex.Message;
+                loggingService.Error(ex);
                 throw ex;
             }
         }

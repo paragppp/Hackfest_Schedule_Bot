@@ -179,5 +179,31 @@ namespace SampleAADv2Bot.Util
             return formattedTime;
         }
 
+        /// <summary>
+        /// Get HTML table with meeting information
+        /// </summary>
+        /// <returns>string of HTML table</returns>
+        public static string GetScheduleTicket(string subject, string duration, string number, string emails, string schedule)
+        {
+            var htmlTicket = "<table><tbody><tr><th>Subject</th><td>";
+            htmlTicket += subject ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Duration</th><td>";
+            htmlTicket += duration ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Number of people</th><td>";
+            htmlTicket += number ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Attendances</th><td>";
+            htmlTicket += emails ?? "";
+
+            htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
+            htmlTicket += schedule ?? "";
+
+            htmlTicket += "</td></tr></tbody></table>";
+
+            return htmlTicket;
+        }
+
     }
 }

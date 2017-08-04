@@ -1,16 +1,30 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Builder.Dialogs;
 using SampleAADv2Bot.Dialogs;
+using SampleAADv2Bot.Services;
+
 
 namespace SampleAADv2Bot
 {
     [BotAuthentication]
     public class MessagesController : ApiController
     {
+        private readonly IMeetingService meetingService;
+        private readonly IRoomService roomService;
+        private readonly ILoggingService loggingService;
+
+        public MessagesController(IMeetingService meetingService, IRoomService roomService, ILoggingService loggingService)
+        {
+            this.meetingService = meetingService;
+            this.roomService = roomService;
+            this.loggingService = loggingService;
+        }
+
         /// <summary>
         /// POST: api/Messages
         /// Receive a message from a user and reply to it
@@ -19,7 +33,7 @@ namespace SampleAADv2Bot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new RootDialog());
+                await Conversation.SendAsync(activity, () => new RootDialog(meetingService, roomService, loggingService));
             }
             else
             {

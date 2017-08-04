@@ -13,6 +13,7 @@ using SampleAADv2Bot.Extensions;
 using System.Globalization;
 using SampleAADv2Bot.Services;
 
+
 namespace SampleAADv2Bot.Dialogs
 {
     [Serializable]
@@ -44,10 +45,23 @@ namespace SampleAADv2Bot.Dialogs
         //Scheduling
         AuthResult result = null;
 
+        private readonly IMeetingService meetingService;
+        private readonly ILoggingService loggingService;
+        private readonly IRoomService roomService;
+
         // TBD - Replace with dependency injection 
-        static IRoomService roomService = new RoomService();
-        static IHttpService httpService = new HttpService();
-        static MeetingService meetingService = new MeetingService(httpService, roomService);
+        //static IRoomService roomService = new RoomService();
+        //static IHttpService httpService = new HttpService();
+        //static ILoggingService loggingService = new LoggingService();
+        //static MeetingService meetingService = new MeetingService(httpService, roomService, loggingService);
+
+        public RootDialog(IMeetingService meetingService, IRoomService roomService, ILoggingService loggingService)
+        {
+            this.meetingService = meetingService;
+            this.roomService = roomService;
+            this.loggingService = loggingService;
+        }
+
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -79,7 +93,7 @@ namespace SampleAADv2Bot.Dialogs
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
             subject = await argument;
-            await context.PostAsync(GetScheduleTicket());
+            await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
             PromptDialog.Text(context, DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
         }
 
@@ -90,7 +104,7 @@ namespace SampleAADv2Bot.Dialogs
             if (duration.IsNaturalNumber())
             {
                 normalizedDuration = Int32.Parse(duration);
-                await context.PostAsync(GetScheduleTicket());
+                await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
                 PromptDialog.Text(context, NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
             }
             else
@@ -107,7 +121,7 @@ namespace SampleAADv2Bot.Dialogs
             if (number.IsNaturalNumber())
             {
                 normalizedNumber = Int32.Parse(number);
-                await context.PostAsync(GetScheduleTicket());
+                await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
                 PromptDialog.Text(context, EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
             }
             else
@@ -131,7 +145,7 @@ namespace SampleAADv2Bot.Dialogs
                 if (normalizedEmails.Length == normalizedNumber)
                 {
                     await context.PostAsync(Properties.Resources.Text_CheckEmailAddresses);
-                    await context.PostAsync(GetScheduleTicket());
+                    await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
                     PromptDialog.Text(context, DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
                 }
                 else
@@ -227,7 +241,7 @@ namespace SampleAADv2Bot.Dialogs
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
+                loggingService.Error(ex);
                 throw ex;
             }
         }
@@ -240,34 +254,13 @@ namespace SampleAADv2Bot.Dialogs
             }
             catch (Exception ex)
             {
+                loggingService.Error(ex);
                 await context.PostAsync($"Failed with message: {ex.Message}");
             }
             finally
             {
                 context.Wait(MessageReceivedAsync);
             }
-        }
-
-        private string GetScheduleTicket()
-        {
-            var htmlTicket = "<table><tbody><tr><th>Subject</th><td>";
-            htmlTicket += subject ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Duration</th><td>";
-            htmlTicket += duration ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Number of people</th><td>";
-            htmlTicket += number ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Attendances</th><td>";
-            htmlTicket += emails ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
-            htmlTicket += schedule ?? "";
-
-            htmlTicket += "</td></tr></tbody></table>";
-
-            return htmlTicket;
         }
     }
 }
