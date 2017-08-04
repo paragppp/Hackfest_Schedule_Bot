@@ -298,11 +298,6 @@ namespace SampleAADv2Bot.Dialogs
                 var meeting = new Event()
                     {
                         Subject = subject,
-                        //Body = new ItemBody()
-                        //{
-                        //    ContentType = BodyType.Html,
-                        //    Content = "Does late morning work for you?"
-                        //},
                         Start = new DateTimeTimeZone()
                         {
                             DateTime = startTime.ToString(), // "2017-07-29T07:30:00.000Z",
@@ -315,7 +310,8 @@ namespace SampleAADv2Bot.Dialogs
                         },
                         Location = new Location()
                         {
-                            DisplayName = roomName
+                            DisplayName = selectedRoom.Name,
+                            LocationEmailAddress = selectedRoom.Address
                         },
                         Attendees = attendees
                     };
