@@ -70,7 +70,6 @@ namespace SampleAADv2Bot.Dialogs
                 this.result = await authResult;
                 // Use token to call into service                
                 var json = await new HttpClient().GetWithAuthAsync(result.AccessToken, "https://graph.microsoft.com/v1.0/me");
-                //await authContext.PostAsync($"I'm a simple bot that doesn't do much, but I know your name is {json.Value<string>("displayName")} and your UPN is {json.Value<string>("userPrincipalName")}.But expect a lot more from me shortly!");
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
                 PromptDialog.Text(authContext, this.SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
             }, message, CancellationToken.None);
@@ -80,7 +79,6 @@ namespace SampleAADv2Bot.Dialogs
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
             this.subject = await argument;
-            //await context.PostAsync(Properties.Resources.Text_CheckSubject1 + this.subject + Properties.Resources.Text_CheckSubject2);
             await context.PostAsync(this.GetScheduleTicket());
             PromptDialog.Text(context, this.DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
         }
@@ -92,7 +90,6 @@ namespace SampleAADv2Bot.Dialogs
             if (this.duration.IsNaturalNumber())
             {
                 normalizedDuration = Int32.Parse(this.duration);
-                //await context.PostAsync(Properties.Resources.Text_CheckDuration1 + this.normalizedDuration + Properties.Resources.Text_CheckDuration2);
                 await context.PostAsync(this.GetScheduleTicket());
                 PromptDialog.Text(context, this.NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
             }
@@ -110,7 +107,6 @@ namespace SampleAADv2Bot.Dialogs
             if (this.number.IsNaturalNumber())
             {
                 normalizedNumber = Int32.Parse(this.number);
-                //await context.PostAsync(Properties.Resources.Text_CheckNumberOfParticipants1 + this.normalizedNumber + Properties.Resources.Text_CheckNumberOfParticipants2);
                 await context.PostAsync(this.GetScheduleTicket());
                 PromptDialog.Text(context, this.EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
             }
@@ -135,8 +131,6 @@ namespace SampleAADv2Bot.Dialogs
                 if (normalizedEmails.Length == normalizedNumber)
                 {
                     await context.PostAsync(Properties.Resources.Text_CheckEmailAddresses);
-                    //foreach (var i in normalizedEmails)
-                    //    await context.PostAsync(i);
                     await context.PostAsync(this.GetScheduleTicket());
                     PromptDialog.Text(context, this.DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
                 }
@@ -294,13 +288,13 @@ namespace SampleAADv2Bot.Dialogs
                         }
                     });
                     
-                #region TBD Replace with real input 
+
                 var meeting = new Event()
                     {
                         Subject = subject,
                         Start = new DateTimeTimeZone()
                         {
-                            DateTime = startTime.ToString(), // "2017-07-29T07:30:00.000Z",
+                            DateTime = startTime.ToString(),
                             TimeZone = "UTC"
                         },
                         End = new DateTimeTimeZone()
@@ -315,7 +309,6 @@ namespace SampleAADv2Bot.Dialogs
                         },
                         Attendees = attendees
                     };
-                #endregion
 
                     var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
                     await context.PostAsync($"Meeting with iCalUId - {scheduledMeeting.ICalUId} is scheduled.");
@@ -361,9 +354,6 @@ namespace SampleAADv2Bot.Dialogs
 
             htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
             htmlTicket += this.schedule ?? "";
-
-            // htmlTicket += "</td></tr><tr><th>Candidate</th><td>";
-            // htmlTicket += this.candidate ?? "";
 
             htmlTicket += "</td></tr></tbody></table>";
 
