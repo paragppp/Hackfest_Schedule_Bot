@@ -160,6 +160,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\HttpService.cs" />
+    <Compile Include="Services\IHttpService.cs" />
     <Compile Include="Services\IMeetingService.cs" />
     <Compile Include="Services\IRoomService.cs" />
     <Compile Include="Services\MeetingSchedule.cs" />

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace SampleAADv2Bot.Services
 {
@@ -20,6 +17,10 @@ namespace SampleAADv2Bot.Services
         /// </summary>
         public string Address { get; set; }
 
+        /// <summary>
+        /// Custom ToString method that returns room name
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return Name;

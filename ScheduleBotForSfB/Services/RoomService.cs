@@ -5,9 +5,16 @@ using Microsoft.Graph;
 
 namespace SampleAADv2Bot.Services
 {
+    /// <summary>
+    /// Room Serivce 
+    /// </summary>
     [Serializable]
     public class RoomService : IRoomService
     {
+        /// <summary>
+        /// Get all rooms 
+        /// </summary>
+        /// <returns>List of all rooms</returns>
         public List<Room> GetRooms()
         {
             try
@@ -39,6 +46,11 @@ namespace SampleAADv2Bot.Services
             }
         }
 
+        /// <summary>
+        /// Add rooms to meeting time suggestion request
+        /// </summary>
+        /// <param name="request">Meeting time suggestion request</param>
+        /// <param name="rooms">List of rooms</param>
         public void AddRooms(UserFindMeetingTimesRequestBody request, List<Room> rooms)
         {
             var attendees = request.Attendees as List<Attendee>;
