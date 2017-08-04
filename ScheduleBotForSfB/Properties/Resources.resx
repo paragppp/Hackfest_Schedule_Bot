@@ -126,6 +126,9 @@
   <data name="Text_AlertEmailAddresses" xml:space="preserve">
     <value>Please enter only E-mail addresses.&lt;br&gt;e.g. abc@company.com, def@government.gov</value>
   </data>
+  <data name="Text_AlertNoSuggestion" xml:space="preserve">
+    <value>There is no available time on the date. Please enter another date.</value>
+  </data>
   <data name="Text_AlertNumberOfParticipants" xml:space="preserve">
     <value>Please enter only numbers.&lt;br&gt;e.g. 3</value>
   </data>

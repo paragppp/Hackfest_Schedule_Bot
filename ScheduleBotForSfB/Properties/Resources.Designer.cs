@@ -88,6 +88,15 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
+        ///   There is no available time on the date. Please enter another date. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string Text_AlertNoSuggestion {
+            get {
+                return ResourceManager.GetString("Text_AlertNoSuggestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Please enter only numbers.&lt;br&gt;e.g. 3 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_AlertNumberOfParticipants {

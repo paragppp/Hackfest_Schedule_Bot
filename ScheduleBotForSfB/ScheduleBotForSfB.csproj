@@ -160,12 +160,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="Services\IMeetingService.cs" />
     <Compile Include="Services\IRoomService.cs" />
+    <Compile Include="Services\MeetingSchedule.cs" />
     <Compile Include="Services\MeetingService.cs" />
     <Compile Include="Services\Room.cs" />
     <Compile Include="Services\RoomService.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="Util\DataConverter.cs" />
   </ItemGroup>
   <ItemGroup>
