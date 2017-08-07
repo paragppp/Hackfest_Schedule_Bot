@@ -1,21 +1,11 @@
 ﻿//Currently this is not used
 
-using BotAuth.AADv2;
-using BotAuth.Dialogs;
-using BotAuth.Models;
-using BotAuth;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Connector;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using SampleAADv2Bot.Extensions;
-using LanguageDetection;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
 

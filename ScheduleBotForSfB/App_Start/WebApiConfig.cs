@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using SampleAADv2Bot.Exceptions;
 using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
 
 namespace SampleAADv2Bot
 {
@@ -32,6 +31,8 @@ namespace SampleAADv2Bot
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Services.Add(typeof(IExceptionLogger), new TraceExceptionLogger());
         }
     }
 }

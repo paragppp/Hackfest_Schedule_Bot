@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using SampleAADv2Bot.Extensions;
 using System.Globalization;
 using SampleAADv2Bot.Services;
-using Microsoft.Graph;
+
 
 namespace SampleAADv2Bot.Dialogs
 {
@@ -45,9 +45,23 @@ namespace SampleAADv2Bot.Dialogs
         //Scheduling
         AuthResult result = null;
 
-        static RoomService roomService = new RoomService();
+        private readonly IMeetingService meetingService;
+        private readonly ILoggingService loggingService;
+        private readonly IRoomService roomService;
+
         // TBD - Replace with dependency injection 
-        static MeetingService meetingService = new MeetingService(roomService);
+        //static IRoomService roomService = new RoomService();
+        //static IHttpService httpService = new HttpService();
+        //static ILoggingService loggingService = new LoggingService();
+        //static MeetingService meetingService = new MeetingService(httpService, roomService, loggingService);
+
+        public RootDialog(IMeetingService meetingService, IRoomService roomService, ILoggingService loggingService)
+        {
+            this.meetingService = meetingService;
+            this.roomService = roomService;
+            this.loggingService = loggingService;
+        }
+
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -67,101 +81,101 @@ namespace SampleAADv2Bot.Dialogs
            
             await context.Forward(new AuthDialog(new MSALAuthProvider(), Util.DataConverter.GetAuthenticationOptions()), async (IDialogContext authContext, IAwaitable<AuthResult> authResult) =>
             {
-                this.result = await authResult;
+                result = await authResult;
                 // Use token to call into service                
                 var json = await new HttpClient().GetWithAuthAsync(result.AccessToken, "https://graph.microsoft.com/v1.0/me");
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-                PromptDialog.Text(authContext, this.SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
+                PromptDialog.Text(authContext, SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
             }, message, CancellationToken.None);
         }
 
         public async Task SubjectMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.subject = await argument;
-            await context.PostAsync(this.GetScheduleTicket());
-            PromptDialog.Text(context, this.DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
+            subject = await argument;
+            await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
+            PromptDialog.Text(context, DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
         }
 
         public async Task DurationReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.duration = await argument;
-            if (this.duration.IsNaturalNumber())
+            duration = await argument;
+            if (duration.IsNaturalNumber())
             {
-                normalizedDuration = Int32.Parse(this.duration);
-                await context.PostAsync(this.GetScheduleTicket());
-                PromptDialog.Text(context, this.NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
+                normalizedDuration = Int32.Parse(duration);
+                await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
+                PromptDialog.Text(context, NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
             }
             else
             {
                 await context.PostAsync(Properties.Resources.Text_AlertDuration);
-                PromptDialog.Text(context, this.DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
+                PromptDialog.Text(context, DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
             }
         }
 
         public async Task NumbersMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.number = await argument;
-            if (this.number.IsNaturalNumber())
+            number = await argument;
+            if (number.IsNaturalNumber())
             {
-                normalizedNumber = Int32.Parse(this.number);
-                await context.PostAsync(this.GetScheduleTicket());
-                PromptDialog.Text(context, this.EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
+                normalizedNumber = Int32.Parse(number);
+                await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
+                PromptDialog.Text(context, EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
             }
             else
             {
                 await context.PostAsync(Properties.Resources.Text_AlertNumberOfParticipants);
-                PromptDialog.Text(context, this.NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
+                PromptDialog.Text(context, NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
             }
         }
 
         public async Task EmailsMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.emails = await argument;
+            emails = await argument;
             //remove space
-            this.emails = this.emails.Replace(" ", "").Replace("　", "");
-            this.emails = this.emails.Replace("&#160;", "").Replace("&#160:^", "");
-            this.emails = System.Text.RegularExpressions.Regex.Replace(this.emails, "\\(.+?\\)", "");
-            if (this.emails.IsEmailAddressList())
+            emails = emails.Replace(" ", "").Replace("　", "");
+            emails = emails.Replace("&#160;", "").Replace("&#160:^", "");
+            emails = System.Text.RegularExpressions.Regex.Replace(emails, "\\(.+?\\)", "");
+            if (emails.IsEmailAddressList())
             {
-                normalizedEmails = this.emails.Split(',');
+                normalizedEmails = emails.Split(',');
                 if (normalizedEmails.Length == normalizedNumber)
                 {
                     await context.PostAsync(Properties.Resources.Text_CheckEmailAddresses);
-                    await context.PostAsync(this.GetScheduleTicket());
-                    PromptDialog.Text(context, this.DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
+                    await context.PostAsync(Util.DataConverter.GetScheduleTicket(subject, duration, number, emails, schedule));
+                    PromptDialog.Text(context, DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
                 }
                 else
                 {
                     await context.PostAsync("Please enter " + normalizedNumber + " E-mail addresses.");                    
-                    PromptDialog.Text(context, this.EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
+                    PromptDialog.Text(context, EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
                 }
 
             }
             else
             {
                 await context.PostAsync(Properties.Resources.Text_AlertEmailAddresses);
-                PromptDialog.Text(context, this.EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
+                PromptDialog.Text(context, EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
             }
         }
 
         public async Task DateMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.date = await argument;
+            date = await argument;
             DateTime dateTime;
             DateTime.TryParse(date, out dateTime);
             if (dateTime != DateTime.MinValue && dateTime != DateTime.MaxValue)
             {
-                await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this.date + Properties.Resources.Text_CheckWhen2);
+                await context.PostAsync(Properties.Resources.Text_CheckWhen1 + date + Properties.Resources.Text_CheckWhen2);
                 await GetMeetingSuggestions(context, argument);
             }
             else
             {
-                PromptDialog.Text(context, this.DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
+                PromptDialog.Text(context, DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
             }
         }
 
@@ -195,54 +209,7 @@ namespace SampleAADv2Bot.Dialogs
         // TBD - inject function logic for the interaction with Graph API 
         private async Task GetMeetingSuggestions(IDialogContext context, IAwaitable<string> argument)
         {
-            string startDate = date + "T00:00:00.000Z";
-            string endDate = date + "T10:00:00.00Z";
-            List<Attendee> inputAttendee = new List<Attendee>();
-            foreach (var i in normalizedEmails)
-            {
-                inputAttendee.Add(
-                     new Attendee()
-                     {
-                         EmailAddress = new EmailAddress()
-                         {
-                             Address = i
-                         }
-                     }
-                    );
-            }
-            Duration inputDuration = new Duration(new TimeSpan(0, normalizedDuration, 0));
-
-
-            var userFindMeetingTimesRequestBody = new UserFindMeetingTimesRequestBody()
-            {
-                Attendees = inputAttendee,
-                TimeConstraint = new TimeConstraint()
-                {
-                    Timeslots = new List<TimeSlot>()
-                        {
-                            new TimeSlot()
-                            {
-                                Start = new DateTimeTimeZone()
-                                {
-                                    DateTime = startDate,
-                                    TimeZone = "UTC"
-                                },
-                                End = new DateTimeTimeZone()
-                                {
-                                    DateTime = endDate,
-                                    TimeZone = "UTC"
-                                }
-                            }
-                        }
-                },
-                MeetingDuration = inputDuration,
-                MaxCandidates = 15,
-                IsOrganizerOptional = false,
-                ReturnSuggestionReasons = true,
-                MinimumAttendeePercentage = 100
-
-            };
-
+            var userFindMeetingTimesRequestBody = Util.DataConverter.GetUserFindMeetingTimesRequestBody(date, normalizedEmails, normalizedDuration);
             var meetingTimeSuggestion = await meetingService.GetMeetingsTimeSuggestions(result.AccessToken, userFindMeetingTimesRequestBody);
             var meetingScheduleSuggestions = new List<MeetingSchedule>();
             foreach (var suggestion in meetingTimeSuggestion.MeetingTimeSuggestions)
@@ -255,7 +222,7 @@ namespace SampleAADv2Bot.Dialogs
                                     {
                                         StartTime = startTime,
                                         EndTime = endTime,
-                                        Time = $"{startTime.AddHours(9).ToString("yyyy-MM-dd")} -  {startTime.AddHours(9).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()}",
+                                        Time = Util.DataConverter.GetFormatedTime(startTime, endTime),
                                         Rooms = Util.DataConverter.GetMeetingSuggestionRooms(suggestion, roomsDictionary)
                                     });
             }
@@ -267,60 +234,17 @@ namespace SampleAADv2Bot.Dialogs
         {
             try
             {    
-                    var selectedRoom = await message;
-                    var attendees = new List<Attendee>();
-                    foreach(var email in normalizedEmails)
-                    {
-                        attendees.Add(new Attendee
-                        {
-                             EmailAddress = new EmailAddress()
-                             {
-                                 Address = email
-                             }
-                        });
-                    }
-                    attendees.Add(new Attendee()
-                    {
-                        EmailAddress = new EmailAddress()
-                        {
-                            Name = selectedRoom.Name,
-                            Address = selectedRoom.Address
-                        }
-                    });
-                    
-
-                var meeting = new Event()
-                    {
-                        Subject = subject,
-                        Start = new DateTimeTimeZone()
-                        {
-                            DateTime = startTime.ToString(),
-                            TimeZone = "UTC"
-                        },
-                        End = new DateTimeTimeZone()
-                        {
-                            DateTime = endTime.ToString(),
-                            TimeZone = "UTC"
-                        },
-                        Location = new Location()
-                        {
-                            DisplayName = selectedRoom.Name,
-                            LocationEmailAddress = selectedRoom.Address
-                        },
-                        Attendees = attendees
-                    };
-
-                    var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
-                    await context.PostAsync($"Meeting with iCalUId - {scheduledMeeting.ICalUId} is scheduled.");
+                var selectedRoom = await message;
+                var meeting = Util.DataConverter.GetEvent(selectedRoom, normalizedEmails, subject, startTime, endTime);
+                var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
+                await context.PostAsync($"Meeting '{subject}' at {Util.DataConverter.GetFormatedTime(startTime, endTime)} with attendees {String.Join(",", normalizedEmails)} in room {selectedRoom.Name} was scheduled.");
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
+                loggingService.Error(ex);
                 throw ex;
             }
         }
-
-
 
         private async Task ResumeAfterOptionDialog(IDialogContext context, IAwaitable<object> argument)
         {
@@ -330,34 +254,13 @@ namespace SampleAADv2Bot.Dialogs
             }
             catch (Exception ex)
             {
+                loggingService.Error(ex);
                 await context.PostAsync($"Failed with message: {ex.Message}");
             }
             finally
             {
-                context.Wait(this.MessageReceivedAsync);
+                context.Wait(MessageReceivedAsync);
             }
-        }
-
-        private string GetScheduleTicket()
-        {
-            var htmlTicket = "<table><tbody><tr><th>Subject</th><td>";
-            htmlTicket += this.subject ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Duration</th><td>";
-            htmlTicket += this.duration ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Number of people</th><td>";
-            htmlTicket += this.number ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Attendances</th><td>";
-            htmlTicket += this.emails ?? "";
-
-            htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
-            htmlTicket += this.schedule ?? "";
-
-            htmlTicket += "</td></tr></tbody></table>";
-
-            return htmlTicket;
         }
     }
 }

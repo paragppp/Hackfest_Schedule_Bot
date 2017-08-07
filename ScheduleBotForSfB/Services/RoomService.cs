@@ -5,9 +5,27 @@ using Microsoft.Graph;
 
 namespace SampleAADv2Bot.Services
 {
+    /// <summary>
+    /// Room Service 
+    /// </summary>
     [Serializable]
     public class RoomService : IRoomService
     {
+        private readonly ILoggingService loggingService;
+
+        /// <summary>
+        /// Room service constructor
+        /// </summary>
+        /// <param name="loggingService">Instance of <see cref="ILoggingService"/></param>
+        public RoomService(ILoggingService loggingService)
+        {
+            this.loggingService = loggingService;
+        }
+
+        /// <summary>
+        /// Get all rooms 
+        /// </summary>
+        /// <returns>List of all rooms</returns>
         public List<Room> GetRooms()
         {
             try
@@ -17,7 +35,7 @@ namespace SampleAADv2Bot.Services
                 var roomEmails = ConfigurationManager.AppSettings["RoomEmails"];
                 if(string.IsNullOrEmpty(roomNames) || string.IsNullOrEmpty(roomEmails))
                 {
-                    throw new ApplicationException("Please provide values for app settings RoomNames and RoomEmails");
+                    throw new ApplicationException("Please provide values for application settings RoomNames and RoomEmails");
                 }
 
                 var roomNameValues = roomNames.Split(new string[] { "," }, StringSplitOptions.None);
@@ -35,25 +53,40 @@ namespace SampleAADv2Bot.Services
             }
             catch(Exception ex)
             {
+                loggingService.Error(ex);
                 throw ex;
             }
         }
 
+        /// <summary>
+        /// Add rooms to meeting time suggestion request
+        /// </summary>
+        /// <param name="request">Meeting time suggestion request</param>
+        /// <param name="rooms">List of rooms</param>
         public void AddRooms(UserFindMeetingTimesRequestBody request, List<Room> rooms)
         {
-            var attendees = request.Attendees as List<Attendee>;
-            foreach (var room in rooms)
+            try
             {
-                attendees.Add(new Attendee()
+                var attendees = request.Attendees as List<Attendee>;
+                foreach (var room in rooms)
                 {
-                    EmailAddress = new EmailAddress()
+                    attendees.Add(new Attendee()
                     {
-                        Address = room.Address,
-                        Name = room.Name
-                    },
-                    Type = AttendeeType.Optional
-                });
+                        EmailAddress = new EmailAddress()
+                        {
+                            Address = room.Address,
+                            Name = room.Name
+                        },
+                        Type = AttendeeType.Optional
+                    });
+                }
             }
+            catch (Exception ex)
+            {
+                loggingService.Error(ex);
+                throw;
+            }
+           
         }
     }
 
