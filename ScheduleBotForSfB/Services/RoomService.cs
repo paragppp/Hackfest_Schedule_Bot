@@ -37,9 +37,9 @@ namespace SampleAADv2Bot.Services
                 {
                     throw new ApplicationException("Please provide values for application settings RoomNames and RoomEmails");
                 }
-
-                var roomNameValues = roomNames.Split(new string[] { "," }, StringSplitOptions.None);
-                var roomEmailValues = roomEmails.Split(new string[] { ","}, StringSplitOptions.None);
+                // Removing the space 
+                var roomNameValues = roomNames.Replace(" ","").Split(new string[] { "," }, StringSplitOptions.None);
+                var roomEmailValues = roomEmails.Replace(" ", "").Split(new string[] { ","}, StringSplitOptions.None);
 
                 var rooms = new List<Room>();
                 for(var i=0; i<roomNameValues.Length; i++)
