@@ -213,7 +213,7 @@ namespace SampleAADv2Bot.Dialogs
             var date = await argument;
             context.PrivateConversationData.SetValue<DateTime>(Util.DataName.meetingSelectedStartTime_datetime, date.StartTime);
             context.PrivateConversationData.SetValue<DateTime>(Util.DataName.meetingSelectedEndTime_datetime, date.EndTime);           
-            PromptDialog.Choice(context, ScheduleMeetingAsync, date.Rooms, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
+            PromptDialog.Choice(context, ConfirmationAsync, date.Rooms, Properties.Resources.Text_PleaseSelectRoom, null, 3);
         }
 
         public async Task ConfirmedMessageReceivedAsync(IDialogContext context, IAwaitable<bool> argument)
@@ -268,19 +268,54 @@ namespace SampleAADv2Bot.Dialogs
             }
         }
 
-        public async Task ScheduleMeetingAsync(IDialogContext context, IAwaitable<Services.Room> message)
+        public async Task ConfirmationAsync(IDialogContext context, IAwaitable<Services.Room> message)
+        {           
+            try
+            {
+                var selectedRoom = await message;
+                context.PrivateConversationData.SetValue<Room>(Util.DataName.meetingSelectedRoom_room, selectedRoom);
+                var savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedStartTime_datetime);
+                var savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedEndTime_datetime);
+                displaySchedule = $"{Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime)}<br>{selectedRoom.ToString()}";
+                await context.PostAsync(Util.DataConverter.GetScheduleTicket(displaySubject, displayDuration, displayNumber, displayEmail, displaySchedule));
+                PromptDialog.Confirm(context, ScheduleMeetingAsync, "Are you sure to book with the above setting?", null, 3, PromptStyle.AutoText);
+            }
+            catch (Exception ex)
+            {
+                loggingService.Error(ex);
+                throw ex;
+            }
+        }
+
+        public async Task ScheduleMeetingAsync(IDialogContext context, IAwaitable<bool> argument)
         {
             try
-            {    
-                var selectedRoom = await message;
-                string savedSubject = context.PrivateConversationData.GetValue<string>(Util.DataName.meeintingSubject_string);
-                string[] savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.invitationsEmails_stringArray);
-                DateTime savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedStartTime_datetime);
-                DateTime savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedEndTime_datetime);
+            {
+                var answer = await argument;
+                if (answer == true)
+                {
+                    try
+                    {
+                        var selectedRoom = context.PrivateConversationData.GetValue<Room>(Util.DataName.meetingSelectedRoom_room);
+                        var savedSubject = context.PrivateConversationData.GetValue<string>(Util.DataName.meeintingSubject_string);
+                        var savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.invitationsEmails_stringArray);
+                        var savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedStartTime_datetime);
+                        var savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedEndTime_datetime);
 
-                var meeting = Util.DataConverter.GetEvent(selectedRoom, savedEmails, savedSubject, savedStartTime, savedEndTime);
-                var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
-                await context.PostAsync($"Meeting '{savedSubject}' at {Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime)} with attendees {String.Join(",", savedEmails)} in room {selectedRoom.Name} was scheduled.");
+                        var meeting = Util.DataConverter.GetEvent(selectedRoom, savedEmails, savedSubject, savedStartTime, savedEndTime);
+                        var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
+                        await context.PostAsync($"Meeting '{savedSubject}' at {Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime)} with attendees {String.Join(",", savedEmails)} in {selectedRoom.Name} was scheduled.");
+                    }
+                    catch (Exception ex)
+                    {
+                        loggingService.Error(ex);
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    await context.PostAsync(Properties.Resources.Text_Canceled);
+                }
             }
             catch (Exception ex)
             {

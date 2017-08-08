@@ -18,6 +18,7 @@ namespace SampleAADv2Bot.Util
         public const string meetingSelectedDate_datetime = "meetingSelectedDate";
         public const string meetingSelectedStartTime_datetime = "meetingSelectedStartTime";
         public const string meetingSelectedEndTime_datetime = "meetingSelectedEndTime";
+        public const string meetingSelectedRoom_room = "meetingSelectedRoom";
 
     }
 }
