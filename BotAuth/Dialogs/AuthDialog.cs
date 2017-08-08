@@ -74,7 +74,22 @@ namespace BotAuth.Dialogs
                                 context.UserData.RemoveValue($"{this.authProvider.Name}{ContextConstants.AuthResultKey}");
                                 context.UserData.SetValue<string>($"{this.authProvider.Name}{ContextConstants.MagicNumberValidated}", "false");
                                 context.UserData.RemoveValue($"{this.authProvider.Name}{ContextConstants.MagicNumberKey}");
-                                await context.PostAsync($"I'm sorry but I couldn't validate your number. Please try authenticating once again. ");
+
+                                //await context.PostAsync($"I'm sorry but I couldn't validate your number. Please try authenticating once again. ");
+
+                                ////////////////// Please use the same block when updating below block: Parag /////////////////////////////////////
+                                // Save authenticationOptions in UserData
+                                context.UserData.SetValue<AuthenticationOptions>($"{this.authProvider.Name}{ContextConstants.AuthOptions}", this.authOptions);
+
+                                // Get ConversationReference and combine with AuthProvider type for the callback
+                                var conversationRef = context.Activity.ToConversationReference();
+                                var state = getStateParam(conversationRef);
+                                string authenticationUrl = await this.authProvider.GetAuthUrlAsync(this.authOptions, state);
+                                //await PromptToLogin(context, msg, authenticationUrl);
+                                string signinmessage = $"<a style=\"font - family: Arial; font - size: 18px; background: #f2f2f2; padding: 5px 18px 5px 18px; border: solid #00abec 5px; text -decoration: none;\" href=\"{authenticationUrl}\">Sign In</a>";
+                                await context.PostAsync(signinmessage);
+                                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
                                 context.Wait(this.MessageReceivedAsync);
                             }
                         }
