@@ -274,16 +274,16 @@ namespace SampleAADv2Bot.Dialogs
             try
             {
                 var selectedRoom = await message;
-                context.PrivateConversationData.SetValue<Room>(Util.DataName.meetingSelectedRoomRoom, selectedRoom);
-                var savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedStartTimeDatetime);
-                var savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedEndTimeDatetime);
-                displaySchedule = $"{Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime)}<br>{selectedRoom.ToString()}";
-                await context.PostAsync(Util.DataConverter.GetScheduleTicket(displaySubject, displayDuration, displayNumber, displayEmail, displaySchedule));
+                context.PrivateConversationData.SetValue<Room>(Util.DataName.MeetingSelectedRoomRoom, selectedRoom);
+                var savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.MeetingSelectedDateDatetime);
+                var savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.MeetingSelectedEndTimeDatetime);
+                _displaySchedule = $"{Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime, 0)}<br>{selectedRoom.Name}";
+                await context.PostAsync(Util.DataConverter.GetScheduleTicket(_displaySubject, _displayDuration, _displayNumber, _displayEmail, _displaySchedule));
                 PromptDialog.Confirm(context, ScheduleMeetingAsync, "Are you sure to book with the above setting?", null, 3, PromptStyle.AutoText);
             }
             catch (Exception ex)
             {
-                loggingService.Error(ex);
+                _loggingService.Error(ex);
                 throw ex;
             }
         }
@@ -297,19 +297,19 @@ namespace SampleAADv2Bot.Dialogs
                 {
                     try
                     {
-                        var selectedRoom = context.PrivateConversationData.GetValue<Room>(Util.DataName.meetingSelectedRoomRoom);
-                        var savedSubject = context.PrivateConversationData.GetValue<string>(Util.DataName.meeintingSubjectString);
-                        var savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.invitationsEmailsStringArray);
-                        var savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedStartTimeDatetime);
-                        var savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedEndTimeDatetime);
+                        var selectedRoom = context.PrivateConversationData.GetValue<Room>(Util.DataName.MeetingSelectedRoomRoom);
+                        var savedSubject = context.PrivateConversationData.GetValue<string>(Util.DataName.MeeintingSubjectString);
+                        var savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.InvitationsEmailsStringArray);
+                        var savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.MeetingSelectedStartTimeDatetime);
+                        var savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.MeetingSelectedEndTimeDatetime);
 
                         var meeting = Util.DataConverter.GetEvent(selectedRoom, savedEmails, savedSubject, savedStartTime, savedEndTime);
-                        var scheduledMeeting = await meetingService.ScheduleMeeting(result.AccessToken, meeting);
-                        await context.PostAsync($"Meeting '{savedSubject}' at {Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime)} with attendees {String.Join(",", savedEmails)} in {selectedRoom.Name} was scheduled.");
+                        var scheduledMeeting = await _meetingService.ScheduleMeeting(_result.AccessToken, meeting);
+                        await context.PostAsync($"Meeting '{savedSubject}' at {Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime, 0)} with attendees {String.Join(",", savedEmails)} in {selectedRoom.Name} was scheduled.");
                     }
                     catch (Exception ex)
                     {
-                        loggingService.Error(ex);
+                        _loggingService.Error(ex);
                         throw ex;
                     }
                 }
@@ -320,7 +320,7 @@ namespace SampleAADv2Bot.Dialogs
             }
             catch (Exception ex)
             {
-                loggingService.Error(ex);
+                _loggingService.Error(ex);
                 throw ex;
             }
         }
