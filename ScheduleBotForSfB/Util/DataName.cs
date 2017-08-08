@@ -15,6 +15,6 @@
         public const string MeetingSelectedDateDatetime = "meetingSelectedDate";
         public const string MeetingSelectedStartTimeDatetime = "meetingSelectedStartTime";
         public const string MeetingSelectedEndTimeDatetime = "meetingSelectedEndTime";
-
+        public const string meetingSelectedRoomRoom = "meetingSelectedRoom";
     }
 }

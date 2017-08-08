@@ -304,6 +304,15 @@ namespace SampleAADv2Bot.Properties {
         }
         
         /// <summary>
+        ///   Please select the room from the following options: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string Text_PleaseSelectRoom {
+            get {
+                return ResourceManager.GetString("Text_PleaseSelectRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Please select the date from the following options:  に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Text_PleaseSelectSchedule {
