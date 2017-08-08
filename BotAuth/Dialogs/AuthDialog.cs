@@ -5,6 +5,7 @@ using Microsoft.Bot.Connector;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -19,6 +20,7 @@ namespace BotAuth.Dialogs
 
         public AuthDialog(IAuthProvider AuthProvider, AuthenticationOptions AuthOptions, string Prompt = "Link")
         {
+
             this.prompt = Prompt;
             this.authProvider = AuthProvider;
             this.authOptions = AuthOptions;
@@ -26,6 +28,14 @@ namespace BotAuth.Dialogs
 
         public async Task StartAsync(IDialogContext context)
         {
+            //int magicNumber = 0;
+            //bool generated = false;
+
+            //context.UserData.TryGetValue<int>($"{this.authProvider.Name}{ContextConstants.MagicNumberKey}", out magicNumber);
+            //context.UserData.TryGetValue<bool>("generated", out generated);
+
+            //await context.PostAsync($"Magic number: {magicNumber}, Generated: {generated}");
+
             context.Wait(MessageReceivedAsync);
         }
 

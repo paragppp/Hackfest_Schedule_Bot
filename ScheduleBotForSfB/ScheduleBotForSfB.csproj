@@ -224,6 +224,8 @@
     <None Include="Properties\PublishProfiles\bot-auth-sample - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\itfairbotendpoint - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\itfairbotendpoint - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\sschedulingbot - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\sschedulingbot - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

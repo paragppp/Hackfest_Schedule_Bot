@@ -67,12 +67,15 @@ namespace SampleAADv2Bot.Dialogs
             displayNumber = "";
             displayEmail = "";
             displaySchedule = "";
+
+            
         }
-    
+
 
         public async Task StartAsync(IDialogContext context)
         {
             await Reset(context);
+
             context.Wait(MessageReceivedAsync);
         }
 

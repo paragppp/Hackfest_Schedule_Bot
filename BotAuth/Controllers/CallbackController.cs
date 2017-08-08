@@ -51,6 +51,12 @@ namespace BotAuth.Controllers
                 var conversationRef = UrlToken.Decode<ConversationReference>(queryString["conversationRef"]);
                 
                 var message = conversationRef.GetPostToBotMessage();
+
+                if (message.From.Id.Contains("sip:"))
+                {
+                    message.From.Id = message.From.Id.Replace("sip:", "");
+                }
+
                 using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, message))
                 {
                     // Get the UserData from the original conversation
@@ -68,10 +74,11 @@ namespace BotAuth.Controllers
                     while (!writeSuccessful && writeAttempts++ < MaxWriteAttempts)
                     {
                         try
-                        {
+                        {    
                             userData.SetProperty($"{authProvider.Name}{ContextConstants.AuthResultKey}", token);
                             userData.SetProperty($"{authProvider.Name}{ContextConstants.MagicNumberKey}", magicNumber);
                             userData.SetProperty($"{authProvider.Name}{ContextConstants.MagicNumberValidated}", "false");
+
                             sc.BotState.SetUserData(message.ChannelId, message.From.Id, userData);
                             writeSuccessful = true;
                         }
@@ -88,7 +95,7 @@ namespace BotAuth.Controllers
                         resp.Content = new StringContent("<html><body>Could not log you in at this time, please try again later</body></html>", System.Text.Encoding.UTF8, @"text/html");
                     }
                     else
-                    {
+                    {                        
                         await Conversation.ResumeAsync(conversationRef, message);
                         resp.Content = new StringContent($"<html><body>Almost done! Please copy this number and paste it back to your chat so your authentication can complete:<br/> <h1>{magicNumber}</h1>.</body></html>", System.Text.Encoding.UTF8, @"text/html");
                     }

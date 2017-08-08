@@ -7,7 +7,7 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Builder.Dialogs;
 using SampleAADv2Bot.Dialogs;
 using SampleAADv2Bot.Services;
-
+using System.Threading;
 
 namespace SampleAADv2Bot
 {
@@ -31,6 +31,11 @@ namespace SampleAADv2Bot
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
+            if (activity.From.Id.Contains("sip:"))
+            {
+                activity.From.Id = activity.From.Id.Replace("sip:", "");
+            }
+
             if (activity.Type == ActivityTypes.Message)
             {
                 await Conversation.SendAsync(activity, () => new RootDialog(meetingService, roomService, loggingService));
@@ -55,6 +60,7 @@ namespace SampleAADv2Bot
                 // Handle conversation state changes, like members being added and removed
                 // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
                 // Not available in all channels
+                
             }
             else if (message.Type == ActivityTypes.ContactRelationUpdate)
             {
