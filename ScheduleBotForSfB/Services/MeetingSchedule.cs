@@ -24,7 +24,7 @@ namespace SampleAADv2Bot.Services
         /// <summary>
         /// List of rooms
         /// </summary>
-        public List<Room> Rooms { get; set; }
+        public List<RoomRecord> Rooms { get; set; }
 
         /// <summary>
         /// Custom ToString method to show time string 

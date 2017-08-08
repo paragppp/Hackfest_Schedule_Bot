@@ -20,14 +20,23 @@ namespace SampleAADv2Bot.Util
         /// <param name="timeSuggestion"></param>
         /// <param name="roomsDictionary"></param>
         /// <returns>List of available rooms</returns>
-        public static List<Room> GetMeetingSuggestionRooms(MeetingTimeSuggestion timeSuggestion, Dictionary<string, string> roomsDictionary)
+        public static List<RoomRecord> GetMeetingSuggestionRooms(MeetingTimeSuggestion timeSuggestion, Dictionary<string, string> roomsDictionary)
         {
-            return (from attendee in timeSuggestion.AttendeeAvailability
-                    where roomsDictionary.ContainsKey(attendee.Attendee.EmailAddress.Address)
-                    select new Room()
-                    {
-                        Address = attendee.Attendee.EmailAddress.Address, Name = roomsDictionary[attendee.Attendee.EmailAddress.Address]
-                    }).ToList();
+            var rooms = new List<RoomRecord>();
+            var counter = 1;
+            foreach(var attendee in timeSuggestion.AttendeeAvailability)		
+             {
+                 if (!roomsDictionary.ContainsKey(attendee.Attendee.EmailAddress.Address)) continue;
+                 rooms.Add(new RoomRecord()
+                 {
+                     Address = attendee.Attendee.EmailAddress.Address,
+                     Name = roomsDictionary[attendee.Attendee.EmailAddress.Address],
+                     Counter =  counter
+                 });
+                 counter++;
+             }		
+               
+            return rooms;
         }
 
         /// <summary>
@@ -162,10 +171,12 @@ namespace SampleAADv2Bot.Util
         /// <param name="startTime">Start time</param>
         /// <param name="endTime">End time</param>
         /// <param name="timeOffset">Time offset</param>
+        /// <param name="counter">Optional counter for better UI in Skype for Business</param>
         /// <returns>Friendly string of date & time of the meeting</returns>
-        public static string GetFormatedTime(DateTime startTime, DateTime endTime, int timeOffset = 9)
+        public static string GetFormatedTime(DateTime startTime, DateTime endTime, int? counter, int timeOffset = 9)
         {
-            var formattedTime = $"{startTime.AddHours(timeOffset):yyyy-MM-dd} -  {startTime.AddHours(timeOffset).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()}";
+            var counterValue = counter.HasValue & counter > 0 ? $"{counter}. " : string.Empty;
+            var formattedTime =  $"{counterValue}{startTime.AddHours(timeOffset):yyyy-MM-dd} -  {startTime.AddHours(timeOffset).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()}";
             return formattedTime;
         }
 

@@ -243,6 +243,7 @@ namespace SampleAADv2Bot.Dialogs
             var userFindMeetingTimesRequestBody = Util.DataConverter.GetUserFindMeetingTimesRequestBody(savedDate, savedEmails, savedDuration);
             var meetingTimeSuggestion = await _meetingService.GetMeetingsTimeSuggestions(_result.AccessToken, userFindMeetingTimesRequestBody);
             var meetingScheduleSuggestions = new List<MeetingSchedule>();
+            var counter = 1;
             foreach (var suggestion in meetingTimeSuggestion.MeetingTimeSuggestions)
             {
                 DateTime.TryParse(suggestion.MeetingTimeSlot.Start.DateTime, out DateTime startTime);
@@ -252,9 +253,10 @@ namespace SampleAADv2Bot.Dialogs
                                     {
                                         StartTime = startTime,
                                         EndTime = endTime,
-                                        Time = Util.DataConverter.GetFormatedTime(startTime, endTime),
+                                        Time = Util.DataConverter.GetFormatedTime(startTime, endTime, counter),
                                         Rooms = Util.DataConverter.GetMeetingSuggestionRooms(suggestion, _roomsDictionary)
                                     });
+                counter++;
             }
             if (meetingScheduleSuggestions.Count != 0)
             {
@@ -267,7 +269,7 @@ namespace SampleAADv2Bot.Dialogs
             }
         }
 
-        public async Task ScheduleMeetingAsync(IDialogContext context, IAwaitable<Services.Room> message)
+        public async Task ScheduleMeetingAsync(IDialogContext context, IAwaitable<RoomRecord> message)
         {
             try
             {    
@@ -279,7 +281,7 @@ namespace SampleAADv2Bot.Dialogs
 
                 var meeting = Util.DataConverter.GetEvent(selectedRoom, savedEmails, savedSubject, savedStartTime, savedEndTime);
                 await _meetingService.ScheduleMeeting(_result.AccessToken, meeting);
-                await context.PostAsync($"Meeting '{savedSubject}' at {Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime)} with attendees {String.Join(",", savedEmails)} in room {selectedRoom.Name} was scheduled.");
+                await context.PostAsync($"Meeting '{savedSubject}' at {Util.DataConverter.GetFormatedTime(savedStartTime, savedEndTime, null)} with attendees {String.Join(",", savedEmails)} in room {selectedRoom.Name} was scheduled.");
             }
             catch (Exception ex)
             {
