@@ -122,10 +122,7 @@ namespace SampleAADv2Bot.Services
         /// <param name="exception">Exception</param>
         /// <param name="message">Error message</param>
         /// <param name="isStackTraceIncluded">Boolean marker for including stack trace</param>
-        public void Error(Exception exception, string message = null, bool isStackTraceIncluded = true)
-        {
-            logger.Error(exception, message, isStackTraceIncluded);
-        }
+        public void Error(Exception exception, string message = null, bool isStackTraceIncluded = true) => logger.Error(exception, message, isStackTraceIncluded);
 
 
         /// <summary>

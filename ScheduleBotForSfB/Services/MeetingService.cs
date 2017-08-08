@@ -11,11 +11,11 @@ namespace SampleAADv2Bot.Services
     [Serializable]
     public class MeetingService : IMeetingService
     {
-        private readonly string FindsMeetingTimeEndpoint = "https://graph.microsoft.com/v1.0/me/findMeetingTimes";
-        private readonly string ScheduleMeetingEndpoint = "https://graph.microsoft.com/v1.0/me/events";
-        private readonly IRoomService roomService;
-        private readonly IHttpService httpService;
-        private readonly ILoggingService loggingService;
+        private const string FindsMeetingTimeEndpoint = "https://graph.microsoft.com/v1.0/me/findMeetingTimes";
+        private const string ScheduleMeetingEndpoint = "https://graph.microsoft.com/v1.0/me/events";
+        private readonly IRoomService _roomService;
+        private readonly IHttpService _httpService;
+        private readonly ILoggingService _loggingService;
 
         /// <summary>
         /// Meeting Service Constructor
@@ -24,9 +24,9 @@ namespace SampleAADv2Bot.Services
         /// <param name="roomService">Room Service instance</param>
         public MeetingService(IHttpService httpService, IRoomService roomService, ILoggingService loggingService)
         {
-            this.roomService = roomService;
-            this.httpService = httpService;
-            this.loggingService = loggingService;
+            _roomService = roomService;
+            _httpService = httpService;
+            _loggingService = loggingService;
         }
 
         /// <summary>
@@ -39,16 +39,16 @@ namespace SampleAADv2Bot.Services
         {
             try
             {
-                var rooms = roomService.GetRooms();
-                roomService.AddRooms(userFindMeetingTimesRequestBody, rooms);
-                var httpResponseMessage = await httpService.AuthenticatedPost(FindsMeetingTimeEndpoint, accessToken, userFindMeetingTimesRequestBody, string.Empty);
+                var rooms = _roomService.GetRooms();
+                _roomService.AddRooms(userFindMeetingTimesRequestBody, rooms);
+                var httpResponseMessage = await _httpService.AuthenticatedPost(FindsMeetingTimeEndpoint, accessToken, userFindMeetingTimesRequestBody, string.Empty);
                 var meetingTimeSuggestionsResult = JsonConvert.DeserializeObject<MeetingTimeSuggestionsResult>(await httpResponseMessage.Content.ReadAsStringAsync());
                 return meetingTimeSuggestionsResult;
             }
             catch (Exception ex)
             {
-                loggingService.Error(ex);
-                throw ex;
+                _loggingService.Error(ex);
+                throw;
             }
         }
 
@@ -62,14 +62,14 @@ namespace SampleAADv2Bot.Services
         {
             try
             {
-                var httpResponseMessage = await httpService.AuthenticatedPost(ScheduleMeetingEndpoint, accessToken, meeting, "UTC");
+                var httpResponseMessage = await _httpService.AuthenticatedPost(ScheduleMeetingEndpoint, accessToken, meeting, "UTC");
                 var scheduledMeeting = JsonConvert.DeserializeObject<Event>(await httpResponseMessage.Content.ReadAsStringAsync());
                 return scheduledMeeting;
             }
             catch (Exception ex)
             {
-                loggingService.Error(ex);
-                throw ex;
+                _loggingService.Error(ex);
+                throw;
             }
         }
     }

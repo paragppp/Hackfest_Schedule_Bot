@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace SampleAADv2Bot.Util
+﻿namespace SampleAADv2Bot.Util
 {
+    /// <summary>
+    /// Class abstracting variables we are using for storing user private data
+    /// </summary>
     public class DataName
     {
-        // This is for PrivateConversationData
-        // Please write {name}_{type} = {name} 
-        public const string userEmail_string = "userEmail";
-        public const string userName_string = "userName";
-        public const string meeintingSubject_string = "meeintingSubject";
-        public const string meetingInvitationsNum_int = "meetingInvitationsNum";
-        public const string meetingDuration_int = "meetingDuration";
-        public const string invitationsEmails_stringArray = "InvitationsEmails";
-        public const string meetingSelectedDate_datetime = "meetingSelectedDate";
-        public const string meetingSelectedStartTime_datetime = "meetingSelectedStartTime";
-        public const string meetingSelectedEndTime_datetime = "meetingSelectedEndTime";
-
+        // Let's follow VS 2017 and ReShapered recommendations for naming 
+        public const string UserEmailString = "userEmail";
+        public const string UserNameString = "userName";
+        public const string MeeintingSubjectString = "meeintingSubject";
+        public const string MeetingInvitationsNumInt = "meetingInvitationsNum";
+        public const string MeetingDurationInt = "meetingDuration";
+        public const string InvitationsEmailsStringArray = "InvitationsEmails";
+        public const string MeetingSelectedDateDatetime = "meetingSelectedDate";
+        public const string MeetingSelectedStartTimeDatetime = "meetingSelectedStartTime";
+        public const string MeetingSelectedEndTimeDatetime = "meetingSelectedEndTime";
+        public const string MeetingSelectedRoomRoom = "meetingSelectedRoom";
     }
 }

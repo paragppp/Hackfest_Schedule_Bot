@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using Microsoft.Graph;
 
 namespace SampleAADv2Bot.Services
@@ -11,7 +12,7 @@ namespace SampleAADv2Bot.Services
     [Serializable]
     public class RoomService : IRoomService
     {
-        private readonly ILoggingService loggingService;
+        private readonly ILoggingService _loggingService;
 
         /// <summary>
         /// Room service constructor
@@ -19,7 +20,7 @@ namespace SampleAADv2Bot.Services
         /// <param name="loggingService">Instance of <see cref="ILoggingService"/></param>
         public RoomService(ILoggingService loggingService)
         {
-            this.loggingService = loggingService;
+            _loggingService = loggingService;
         }
 
         /// <summary>
@@ -30,7 +31,6 @@ namespace SampleAADv2Bot.Services
         {
             try
             {
-                /// Later rooms can be retrieved from Outlook API as specified here - https://blogs.msdn.microsoft.com/exchangedev/2017/06/30/announcing-new-rest-apis-in-beta-for-rooms-time-zones-and-languages/
                 var roomNames = ConfigurationManager.AppSettings["RoomNames"];
                 var roomEmails = ConfigurationManager.AppSettings["RoomEmails"];
                 if(string.IsNullOrEmpty(roomNames) || string.IsNullOrEmpty(roomEmails))
@@ -41,20 +41,17 @@ namespace SampleAADv2Bot.Services
                 var roomNameValues = roomNames.Replace(" ","").Split(new string[] { "," }, StringSplitOptions.None);
                 var roomEmailValues = roomEmails.Replace(" ", "").Split(new string[] { ","}, StringSplitOptions.None);
 
-                var rooms = new List<Room>();
-                for(var i=0; i<roomNameValues.Length; i++)
-                {
-                    rooms.Add(new Room() {
-                            Name = roomNameValues[i],
-                            Address = roomEmailValues[i]
-                    });
-                }
-                return rooms;
+                return roomNameValues.Select((t, i) => new Room()
+                    {
+                        Name = t,
+                        Address = roomEmailValues[i]
+                    })
+                    .ToList();
             }
             catch(Exception ex)
             {
-                loggingService.Error(ex);
-                throw ex;
+                _loggingService.Error(ex);
+                throw;
             }
         }
 
@@ -68,22 +65,19 @@ namespace SampleAADv2Bot.Services
             try
             {
                 var attendees = request.Attendees as List<Attendee>;
-                foreach (var room in rooms)
+                attendees.AddRange(rooms.Select(room => new Attendee()
                 {
-                    attendees.Add(new Attendee()
+                    EmailAddress = new EmailAddress()
                     {
-                        EmailAddress = new EmailAddress()
-                        {
-                            Address = room.Address,
-                            Name = room.Name
-                        },
-                        Type = AttendeeType.Optional
-                    });
-                }
+                        Address = room.Address,
+                        Name = room.Name
+                    },
+                    Type = AttendeeType.Optional
+                }));
             }
             catch (Exception ex)
             {
-                loggingService.Error(ex);
+                _loggingService.Error(ex);
                 throw;
             }
            

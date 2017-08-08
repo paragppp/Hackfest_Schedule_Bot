@@ -206,6 +206,7 @@
     <Compile Include="Services\MeetingSchedule.cs" />
     <Compile Include="Services\MeetingService.cs" />
     <Compile Include="Services\Room.cs" />
+    <Compile Include="Services\RoomRecord.cs" />
     <Compile Include="Services\RoomService.cs" />
     <Compile Include="Util\DataConverter.cs" />
     <Compile Include="Util\DataName.cs" />
