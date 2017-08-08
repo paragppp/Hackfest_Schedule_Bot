@@ -57,10 +57,10 @@ namespace SampleAADv2Bot.Util
         /// <param name="normalizedEmails">List of participants emails</param>
         /// <param name="normalizedDuration">Duration of the meeting</param>
         /// <returns><see cref="UserFindMeetingTimesRequestBody" /></returns>
-        public static UserFindMeetingTimesRequestBody GetUserFindMeetingTimesRequestBody(string date, string[] normalizedEmails, int normalizedDuration)
+        public static UserFindMeetingTimesRequestBody GetUserFindMeetingTimesRequestBody(DateTime date, string[] normalizedEmails, int normalizedDuration)
         {
-            string startDate = date + "T00:00:00.000Z";
-            string endDate = date + "T10:00:00.00Z";
+            string startDate = $"{date.Year.ToString("D4")}-{date.Month.ToString("D2")}-{date.Day.ToString("D2")}T00:00:00.000Z";
+            string endDate = $"{date.Year.ToString("D4")}-{date.Month.ToString("D2")}-{date.Day.ToString("D2")}T10:00:00.000Z";
             List<Attendee> inputAttendee = new List<Attendee>();
             foreach (var i in normalizedEmails)
             {
@@ -191,13 +191,13 @@ namespace SampleAADv2Bot.Util
             htmlTicket += "</td></tr><tr><th>Duration</th><td>";
             htmlTicket += duration ?? "";
 
-            htmlTicket += "</td></tr><tr><th>Number of people</th><td>";
+            htmlTicket += "</td></tr><tr><th>Number of Invitations</th><td>";
             htmlTicket += number ?? "";
 
-            htmlTicket += "</td></tr><tr><th>Attendances</th><td>";
+            htmlTicket += "</td></tr><tr><th>Attendees</th><td>";
             htmlTicket += emails ?? "";
 
-            htmlTicket += "</td></tr><tr><th>Scheduled</th><td>";
+            htmlTicket += "</td></tr><tr><th>Schedule</th><td>";
             htmlTicket += schedule ?? "";
 
             htmlTicket += "</td></tr></tbody></table>";
