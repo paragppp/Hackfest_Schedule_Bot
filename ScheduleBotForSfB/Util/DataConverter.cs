@@ -4,6 +4,8 @@ using Microsoft.Graph;
 using SampleAADv2Bot.Services;
 using BotAuth.Models;
 using System.Configuration;
+using System.Globalization;
+using System.Linq;
 
 namespace SampleAADv2Bot.Util
 {
@@ -20,20 +22,16 @@ namespace SampleAADv2Bot.Util
         /// <returns>List of available rooms</returns>
         public static List<Room> GetMeetingSuggestionRooms(MeetingTimeSuggestion timeSuggestion, Dictionary<string, string> roomsDictionary)
         {
-            var rooms = new List<Room>();
-            foreach(var attendee in timeSuggestion.AttendeeAvailability)
-            {
-                if(roomsDictionary.ContainsKey(attendee.Attendee.EmailAddress.Address))
-                {
-                    rooms.Add(new Room() {  Address = attendee.Attendee.EmailAddress.Address, Name = roomsDictionary[attendee.Attendee.EmailAddress.Address]});
-                }
-            }
-
-            return rooms;
+            return (from attendee in timeSuggestion.AttendeeAvailability
+                    where roomsDictionary.ContainsKey(attendee.Attendee.EmailAddress.Address)
+                    select new Room()
+                    {
+                        Address = attendee.Attendee.EmailAddress.Address, Name = roomsDictionary[attendee.Attendee.EmailAddress.Address]
+                    }).ToList();
         }
 
         /// <summary>
-        /// Get authenticaiton options 
+        /// Get authentication options 
         /// </summary>
         /// <returns><see cref="AuthenticationOptions" /></returns>
         public static AuthenticationOptions GetAuthenticationOptions()
@@ -43,7 +41,7 @@ namespace SampleAADv2Bot.Util
                 Authority = ConfigurationManager.AppSettings["aad:Authority"],
                 ClientId = ConfigurationManager.AppSettings["aad:ClientId"],
                 ClientSecret = ConfigurationManager.AppSettings["aad:ClientSecret"],
-                Scopes = new string[] { "User.Read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared" },
+                Scopes = new [] { "User.Read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared" },
                 RedirectUrl = ConfigurationManager.AppSettings["aad:Callback"]
             };
 
@@ -59,21 +57,16 @@ namespace SampleAADv2Bot.Util
         /// <returns><see cref="UserFindMeetingTimesRequestBody" /></returns>
         public static UserFindMeetingTimesRequestBody GetUserFindMeetingTimesRequestBody(DateTime date, string[] normalizedEmails, int normalizedDuration)
         {
-            string startDate = $"{date.Year.ToString("D4")}-{date.Month.ToString("D2")}-{date.Day.ToString("D2")}T00:00:00.000Z";
-            string endDate = $"{date.Year.ToString("D4")}-{date.Month.ToString("D2")}-{date.Day.ToString("D2")}T10:00:00.000Z";
-            List<Attendee> inputAttendee = new List<Attendee>();
-            foreach (var i in normalizedEmails)
-            {
-                inputAttendee.Add(
-                     new Attendee()
-                     {
-                         EmailAddress = new EmailAddress()
-                         {
-                             Address = i
-                         }
-                     }
-                    );
-            }
+            var startDate = $"{date.Year:D4}-{date.Month:D2}-{date.Day:D2}T00:00:00.000Z";
+            var endDate = $"{date.Year:D4}-{date.Month:D2}-{date.Day:D2}T10:00:00.000Z";
+            var inputAttendee = normalizedEmails.Select(i => new Attendee()
+                {
+                    EmailAddress = new EmailAddress()
+                    {
+                        Address = i
+                    }
+                })
+                .ToList();
 
             var inputDuration = new Duration(new TimeSpan(0, normalizedDuration, 0));
 
@@ -122,17 +115,14 @@ namespace SampleAADv2Bot.Util
         /// <returns><see cref="Event" /></returns>
         public static Event GetEvent(Room selectedRoom, string[] normalizedEmails, string subject, DateTime startTime, DateTime endTime)
         {
-            var attendees = new List<Attendee>();
-            foreach (var email in normalizedEmails)
-            {
-                attendees.Add(new Attendee
+            var attendees = normalizedEmails.Select(email => new Attendee
                 {
                     EmailAddress = new EmailAddress()
                     {
                         Address = email
                     }
-                });
-            }
+                })
+                .ToList();
             attendees.Add(new Attendee()
             {
                 EmailAddress = new EmailAddress()
@@ -147,12 +137,12 @@ namespace SampleAADv2Bot.Util
                 Subject = subject,
                 Start = new DateTimeTimeZone()
                 {
-                    DateTime = startTime.ToString(),
+                    DateTime = startTime.ToString(CultureInfo.InvariantCulture),
                     TimeZone = "UTC"
                 },
                 End = new DateTimeTimeZone()
                 {
-                    DateTime = endTime.ToString(),
+                    DateTime = endTime.ToString(CultureInfo.InvariantCulture),
                     TimeZone = "UTC"
                 },
                 Location = new Location()
@@ -167,7 +157,7 @@ namespace SampleAADv2Bot.Util
         }
 
         /// <summary>
-        /// Format meeitng date-time details in friendlier format
+        /// Format meeting date-time details in friendlier format
         /// </summary>
         /// <param name="startTime">Start time</param>
         /// <param name="endTime">End time</param>
@@ -175,7 +165,7 @@ namespace SampleAADv2Bot.Util
         /// <returns>Friendly string of date & time of the meeting</returns>
         public static string GetFormatedTime(DateTime startTime, DateTime endTime, int timeOffset = 9)
         {
-            var formattedTime = $"{startTime.AddHours(timeOffset).ToString("yyyy-MM-dd")} -  {startTime.AddHours(timeOffset).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()}";
+            var formattedTime = $"{startTime.AddHours(timeOffset):yyyy-MM-dd} -  {startTime.AddHours(timeOffset).ToShortTimeString()}  - {endTime.AddHours(9).ToShortTimeString()}";
             return formattedTime;
         }
 

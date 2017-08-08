@@ -9,7 +9,7 @@ namespace SampleAADv2Bot.Exceptions
     /// </summary>
     public class TraceExceptionLogger : ExceptionLogger
     {
-        private readonly TelemetryClient telemetryClient = new TelemetryClient();
+        private readonly TelemetryClient _telemetryClient = new TelemetryClient();
 
         /// <summary>
         /// Log all unhanded exceptions 
@@ -18,7 +18,7 @@ namespace SampleAADv2Bot.Exceptions
         public override void Log(ExceptionLoggerContext context)
         {
             var exception = context.ExceptionContext.Exception;
-            telemetryClient.TrackException(exception);
+            _telemetryClient.TrackException(exception);
             Trace.TraceError(exception.ToString());
         }
     }

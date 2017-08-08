@@ -2,7 +2,6 @@
 
 using Microsoft.Bot.Builder.Dialogs;
 using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using SampleAADv2Bot.Extensions;
@@ -16,54 +15,52 @@ namespace SampleAADv2Bot.Dialogs
     public class ScheduleDialog: IDialog<string>
     {
         //raw inputs
-        private string subject = null;
-        private string number = null;
-        private string duration = null;
-        private string emails = null;
-        private string date = null;
-        private string schedule = null;
+        private string _subject;
+        private string _number;
+        private string _duration;
+        private string _emails;
+        private string _date;
+        private string _schedule;
 
         //normalized inputs
-        private int normalizedNumber = 0;
-        private int normalizedDuration = 0;
-        private string[] normalizedEmails;
+        private int _normalizedNumber;
+        private int _normalizedDuration;
+        private string[] _normalizedEmails;
         private DateTime normalizedDate;
-        private string normalizedSchedule = null;
-        private string detectedLanguage = null;
-        JObject json = null;
+        private string _detectedLanguage;
+        JObject _json;
 
         public async Task StartAsync(IDialogContext context)
         {
-            if (context.PrivateConversationData.TryGetValue<string>("detectedLanguage", out detectedLanguage))
+            if (context.PrivateConversationData.TryGetValue<string>("detectedLanguage", out _detectedLanguage))
             {
-                detectedLanguage = context.PrivateConversationData.GetValue<string>("detectedLanguage");
+                _detectedLanguage = context.PrivateConversationData.GetValue<string>("detectedLanguage");
             }
-            if (context.PrivateConversationData.TryGetValue<JObject>("jsonData", out json))
+            if (context.PrivateConversationData.TryGetValue<JObject>("jsonData", out _json))
             {
-                json = context.PrivateConversationData.GetValue<JObject>("jsonData");
+                _json = context.PrivateConversationData.GetValue<JObject>("jsonData");
             }
-            this.detectedLanguage = detectedLanguage;
-            PromptDialog.Text(context, this.SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
+            PromptDialog.Text(context, this.SubjectMessageReceivedAsync, Properties.Resources.Text_Hello1 + _json.Value<string>("displayName") + Properties.Resources.Text_Hello2 + Properties.Resources.Text_PleaseEnterSubject);
         }
 
         public async Task SubjectMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            await context.PostAsync(detectedLanguage);
-            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.subject = await argument;
-            await context.PostAsync(Properties.Resources.Text_CheckSubject1 + this.subject + Properties.Resources.Text_CheckSubject2);
+            await context.PostAsync(_detectedLanguage);
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            this._subject = await argument;
+            await context.PostAsync(Properties.Resources.Text_CheckSubject1 + this._subject + Properties.Resources.Text_CheckSubject2);
             PromptDialog.Text(context, this.DurationReceivedAsync, Properties.Resources.Text_PleaseEnterDuration);
         }
 
         public async Task DurationReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.duration = await argument;
-            if (this.duration.IsNaturalNumber())
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            this._duration = await argument;
+            if (this._duration.IsNaturalNumber())
             {
-                normalizedDuration = Int32.Parse(this.duration);
-                await context.PostAsync(Properties.Resources.Text_CheckDuration1 + this.normalizedDuration + Properties.Resources.Text_CheckDuration2);
+                _normalizedDuration = Int32.Parse(this._duration);
+                await context.PostAsync(Properties.Resources.Text_CheckDuration1 + this._normalizedDuration + Properties.Resources.Text_CheckDuration2);
                 PromptDialog.Text(context, this.NumbersMessageReceivedAsync, Properties.Resources.Text_PleaseEnterNumberOfParticipants);
             }
             else
@@ -75,12 +72,12 @@ namespace SampleAADv2Bot.Dialogs
 
         public async Task NumbersMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.number = await argument;
-            if (this.number.IsNaturalNumber())
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            this._number = await argument;
+            if (this._number.IsNaturalNumber())
             {
-                normalizedNumber = Int32.Parse(this.number);
-                await context.PostAsync(Properties.Resources.Text_CheckNumberOfParticipants1 + this.normalizedNumber + Properties.Resources.Text_CheckNumberOfParticipants2);
+                _normalizedNumber = Int32.Parse(this._number);
+                await context.PostAsync(Properties.Resources.Text_CheckNumberOfParticipants1 + this._normalizedNumber + Properties.Resources.Text_CheckNumberOfParticipants2);
                 PromptDialog.Text(context, this.EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
             }
             else
@@ -92,16 +89,16 @@ namespace SampleAADv2Bot.Dialogs
 
         public async Task EmailsMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.emails = await argument;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            this._emails = await argument;
             //remove space
-            this.emails = this.emails.Replace(" ", "").Replace("　", "");
+            this._emails = this._emails.Replace(" ", "").Replace("　", "");
 
-            if (this.emails.IsEmailAddressList())
+            if (this._emails.IsEmailAddressList())
             {
-                normalizedEmails = this.emails.Split(',');
+                _normalizedEmails = this._emails.Split(',');
                 await context.PostAsync(Properties.Resources.Text_CheckEmailAddresses);
-                foreach (var i in normalizedEmails)
+                foreach (var i in _normalizedEmails)
                     await context.PostAsync(i);
                 PromptDialog.Text(context, this.DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
             }
@@ -114,12 +111,12 @@ namespace SampleAADv2Bot.Dialogs
 
         public async Task DateMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.date = await argument;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            this._date = await argument;
 
-            if (this.date.IsDatatime())
+            if (this._date.IsDatatime())
             {
-                await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this.date + Properties.Resources.Text_CheckWhen2);
+                await context.PostAsync(Properties.Resources.Text_CheckWhen1 + this._date + Properties.Resources.Text_CheckWhen2);
                 var dateCandidates = new string[] { "7/10 12:00-13:00 RoomA", "7/10 16:00-17:00 RoomB", "7/11 12:00-13:00 RoomC" };
                 PromptDialog.Choice(context, this.ScheduleMessageReceivedAsync, dateCandidates, Properties.Resources.Text_PleaseSelectSchedule, null, 3);
             }
@@ -133,18 +130,18 @@ namespace SampleAADv2Bot.Dialogs
 
         public async Task ScheduleMessageReceivedAsync(IDialogContext context, IAwaitable<string> argument)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
-            this.schedule = await argument;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
+            this._schedule = await argument;
             await context.PostAsync(Properties.Resources.Text_Confirmation1);
-            foreach (var i in normalizedEmails)
+            foreach (var i in _normalizedEmails)
                 await context.PostAsync(i);
-            await context.PostAsync(Properties.Resources.Text_Confirmation2 + this.schedule + Properties.Resources.Text_Confirmation3);
+            await context.PostAsync(Properties.Resources.Text_Confirmation2 + this._schedule + Properties.Resources.Text_Confirmation3);
             PromptDialog.Confirm(context, this.ConfirmedMessageReceivedAsync, Properties.Resources.Text_Confirmation4, null, 3, PromptStyle.AutoText);
         }
 
         public async Task ConfirmedMessageReceivedAsync(IDialogContext context, IAwaitable<bool> argument)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(detectedLanguage);
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(_detectedLanguage);
             var confirmed = await argument;
 
             if (confirmed)
