@@ -51,9 +51,9 @@ namespace SampleAADv2Bot.Dialogs
             this.loggingService = loggingService;
         }
 
-        public async Task Init(IDialogContext context)
+        public async Task Reset(IDialogContext context)
         {
-            context.PrivateConversationData.RemoveValue(Util.DataName.InvitationsEmails_stringArray);
+            context.PrivateConversationData.RemoveValue(Util.DataName.invitationsEmails_stringArray);
             context.PrivateConversationData.RemoveValue(Util.DataName.meeintingSubject_string);
             context.PrivateConversationData.RemoveValue(Util.DataName.meetingDuration_int);
             context.PrivateConversationData.RemoveValue(Util.DataName.meetingInvitationsNum_int);
@@ -72,7 +72,7 @@ namespace SampleAADv2Bot.Dialogs
 
         public async Task StartAsync(IDialogContext context)
         {
-            await Init(context);
+            await Reset(context);
             context.Wait(MessageReceivedAsync);
         }
 
@@ -156,7 +156,9 @@ namespace SampleAADv2Bot.Dialogs
             var message = await argument;
             //remove space
             message = message.Replace(" ", "").Replace("　", "");
+            //This is because in skype for business, " "(space) is automatically converted to "&#160;", which is blocking to get emails
             message = message.Replace("&#160;", "").Replace("&#160:^", "");
+            //This is removing hyperlink which skype for business automatically adds
             message = System.Text.RegularExpressions.Regex.Replace(message, "\\(.+?\\)", "");
             if (message.IsEmailAddressList())
             {
@@ -165,15 +167,17 @@ namespace SampleAADv2Bot.Dialogs
 
                 if (normalizedEmails.Length == normalizedNumber)
                 {
-                    context.PrivateConversationData.SetValue<string[]>(Util.DataName.InvitationsEmails_stringArray, normalizedEmails);
-                    foreach(var i in normalizedEmails)
-                        displayEmail += i+"<br>";
+                    context.PrivateConversationData.SetValue<string[]>(Util.DataName.invitationsEmails_stringArray, normalizedEmails);
+                    var stringBuilder = new System.Text.StringBuilder();
+                    foreach (var i in normalizedEmails)
+                        stringBuilder.Append($"{i}<br>");
+                    displayEmail = stringBuilder.ToString();
                     await context.PostAsync(Util.DataConverter.GetScheduleTicket(displaySubject, displayDuration, displayNumber, displayEmail, displaySchedule));
                     PromptDialog.Text(context, DateMessageReceivedAsync, Properties.Resources.Text_PleaseEnterWhen);
                 }
                 else
                 {
-                    await context.PostAsync("Please enter " + displayNumber + " E-mail addresses.");                    
+                    await context.PostAsync($"Please enter {displayNumber} E-mail addresses.");                    
                     PromptDialog.Text(context, EmailsMessageReceivedAsync, Properties.Resources.Text_PleaseEnterEmailAddresses);
                 }
 
@@ -194,7 +198,7 @@ namespace SampleAADv2Bot.Dialogs
             if (dateTime != DateTime.MinValue && dateTime != DateTime.MaxValue)
             {
                 context.PrivateConversationData.SetValue<DateTime>(Util.DataName.meetingSelectedDate_datetime, dateTime);                
-                await context.PostAsync(Properties.Resources.Text_CheckWhen1 + message + Properties.Resources.Text_CheckWhen2);
+                await context.PostAsync($"{Properties.Resources.Text_CheckWhen1} {message} {Properties.Resources.Text_CheckWhen2}");
                 await GetMeetingSuggestions(context, argument);
             }
             else
@@ -233,7 +237,7 @@ namespace SampleAADv2Bot.Dialogs
         private async Task GetMeetingSuggestions(IDialogContext context, IAwaitable<string> argument)
         {
             int savedDuration = context.PrivateConversationData.GetValue<int>(Util.DataName.meetingDuration_int);
-            string[] savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.InvitationsEmails_stringArray);
+            string[] savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.invitationsEmails_stringArray);
             DateTime savedDate = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedDate_datetime);
 
             var userFindMeetingTimesRequestBody = Util.DataConverter.GetUserFindMeetingTimesRequestBody(savedDate, savedEmails, savedDuration);
@@ -270,7 +274,7 @@ namespace SampleAADv2Bot.Dialogs
             {    
                 var selectedRoom = await message;
                 string savedSubject = context.PrivateConversationData.GetValue<string>(Util.DataName.meeintingSubject_string);
-                string[] savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.InvitationsEmails_stringArray);
+                string[] savedEmails = context.PrivateConversationData.GetValue<string[]>(Util.DataName.invitationsEmails_stringArray);
                 DateTime savedStartTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedStartTime_datetime);
                 DateTime savedEndTime = context.PrivateConversationData.GetValue<DateTime>(Util.DataName.meetingSelectedEndTime_datetime);
 

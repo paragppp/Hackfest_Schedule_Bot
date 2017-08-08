@@ -14,7 +14,7 @@ namespace SampleAADv2Bot.Util
         public const string meeintingSubject_string = "meeintingSubject";
         public const string meetingInvitationsNum_int = "meetingInvitationsNum";
         public const string meetingDuration_int = "meetingDuration";
-        public const string InvitationsEmails_stringArray = "InvitationsEmails";
+        public const string invitationsEmails_stringArray = "InvitationsEmails";
         public const string meetingSelectedDate_datetime = "meetingSelectedDate";
         public const string meetingSelectedStartTime_datetime = "meetingSelectedStartTime";
         public const string meetingSelectedEndTime_datetime = "meetingSelectedEndTime";
