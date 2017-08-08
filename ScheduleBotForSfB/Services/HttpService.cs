@@ -11,7 +11,7 @@ namespace SampleAADv2Bot.Services
     [Serializable]
     public class HttpService : IHttpService
     {
-        private readonly ILoggingService loggingService;
+        private readonly ILoggingService _loggingService;
 
         /// <summary>
         /// HTTP Service constructor
@@ -19,7 +19,7 @@ namespace SampleAADv2Bot.Services
         /// <param name="loggingService">Instance of <see cref="ILoggingService"/></param>
         public HttpService(ILoggingService loggingService)
         {
-            this.loggingService = loggingService;
+            _loggingService = loggingService;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace SampleAADv2Bot.Services
             }
             catch (Exception ex)
             {
-                loggingService.Error(ex);
+                _loggingService.Error(ex);
                 throw;
             }
         }

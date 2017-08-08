@@ -14,15 +14,15 @@ namespace SampleAADv2Bot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
-        private readonly IMeetingService meetingService;
-        private readonly IRoomService roomService;
-        private readonly ILoggingService loggingService;
+        private readonly IMeetingService _meetingService;
+        private readonly IRoomService _roomService;
+        private readonly ILoggingService _loggingService;
 
         public MessagesController(IMeetingService meetingService, IRoomService roomService, ILoggingService loggingService)
         {
-            this.meetingService = meetingService;
-            this.roomService = roomService;
-            this.loggingService = loggingService;
+            _meetingService = meetingService;
+            _roomService = roomService;
+            _loggingService = loggingService;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace SampleAADv2Bot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new RootDialog(meetingService, roomService, loggingService));
+                await Conversation.SendAsync(activity, () => new RootDialog(_meetingService, _roomService, _loggingService));
             }
             else
             {
@@ -43,7 +43,7 @@ namespace SampleAADv2Bot
             return response;
         }
 
-        private Activity HandleSystemMessage(Activity message)
+        private void HandleSystemMessage(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)
             {
@@ -63,13 +63,13 @@ namespace SampleAADv2Bot
             }
             else if (message.Type == ActivityTypes.Typing)
             {
-                // Handle knowing tha the user is typing
+                // Handle knowing that the user is typing
             }
             else if (message.Type == ActivityTypes.Ping)
             {
             }
 
-            return null;
+            return;
         }
     }
 }
