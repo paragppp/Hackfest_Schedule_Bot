@@ -198,6 +198,9 @@
   <data name="Text_PleaseEnterWhen" xml:space="preserve">
     <value>&lt;b&gt;When&lt;/b&gt; would you like to hold the meeting?</value>
   </data>
+  <data name="Text_PleaseSelectRoom" xml:space="preserve">
+    <value>Please select the room from the following options:</value>
+  </data>
   <data name="Text_PleaseSelectSchedule" xml:space="preserve">
     <value>Please select the date from the following options: </value>
   </data>
